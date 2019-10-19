@@ -1,6 +1,6 @@
 [package]
 name = "fca4ynab"
-description = "Foreign Currency Accounts for YNAB."
+description = "Foreign currency accounts for YNAB."
 version = "0.1.0"
 authors = ["Emanuel Borsboom <emanuel@borsboom.io>"]
 license = "MIT"

@@ -1,4 +1,4 @@
-# Foreign Currency Accounts for YNAB.
+# Foreign currency accounts for YNAB.
 
 <img src="https://api.youneedabudget.com/papi/works_with_ynab.svg" alt="" align="right">
 
@@ -207,8 +207,8 @@ first ran the tool.  If you prefer a different start date, use the
 `--start-date=<YYYY-MM-DD>` argument to override it.  Note that you can only
 set this the first time you run the tool for a given budget.
 
-If you are happy with the plan, add re-run with the `--yes` argument to
-actually create the difference and adjustment transactions.
+If you are happy with the plan, re-run it with the `--yes` argument to actually
+create the difference and adjustment transactions.
 
 Note that it may take a few minutes for the new transactions to show up in the
 YNAB app.  If you're impatient to see them, reload the app and they should be
@@ -394,6 +394,6 @@ nickname "**🇨🇦RBC Chequing**," and has `<CAD>` in the account notes instea
 
 ## Build from source
 
- 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
- 2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.0).
- 3. In the root of the source tree, run `cargo install --path .`.
+1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
+2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.0).
+3. In the root of the source tree, run `cargo install --path .`.
