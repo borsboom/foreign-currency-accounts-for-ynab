@@ -1,0 +1,23 @@
+trigger:
+  branches:
+    include:
+    - '*'
+  tags:
+    include:
+    - release/*
+jobs:
+- job: Linux
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: etc/azure-pipelines/build-steps.yml
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+  - template: etc/azure-pipelines/build-steps.yml
+- job: Windows
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - template: etc/azure-pipelines/build-steps.yml
