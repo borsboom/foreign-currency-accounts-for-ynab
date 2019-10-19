@@ -1,0 +1,28 @@
+steps:
+
+#
+# Checkout source code
+#
+- checkout: self
+  submodules: recursive
+  displayName: Checkout source code
+
+#
+# Install Rust toolchain
+#
+- bash: |
+    set -xeu -o pipefail
+    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain none -y
+    echo "##vso[task.setvariable variable=PATH;]$HOME/.cargo/bin:$PATH"
+  condition:
+    and(succeeded(),
+        ne(variables['Agent.OS'], 'Windows_NT'))
+  displayName: Install Rust toolchain (Linux/macOS)
+- bash: |
+    set -xeu -o pipefail
+    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain none -y
+    rustup set default-host x86_64-pc-windows-gnu
+  condition:
+    and(succeeded(),
+        eq(variables['Agent.OS'], 'Windows_NT'))
+  displayName: Install Rust toolchain (Windows)

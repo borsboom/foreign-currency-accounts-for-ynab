@@ -1,11 +1,5 @@
 steps:
-
-#
-# Checkout source code
-#
-- checkout: self
-  submodules: recursive
-  displayName: Checkout source code
+- template: setup.yml
 
 #
 # Install system dependencies
@@ -20,49 +14,12 @@ steps:
   displayName: Install Ubuntu packages (Linux)
 
 #
-# Install rustup
-#
-- bash: |
-    set -xeu -o pipefail
-    curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain none -y
-    echo "##vso[task.setvariable variable=PATH;]$HOME/.cargo/bin:$PATH"
-  condition:
-    and(succeeded(),
-        ne(variables['Agent.OS'], 'Windows_NT'))
-  displayName: Install rustup (Linux/macOS)
-- powershell: |
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri https://win.rustup.rs -OutFile $env:TEMP\rustup-init.exe
-  condition:
-    and(succeeded(),
-        eq(variables['Agent.OS'], 'Windows_NT'))
-  displayName: Download rust-init (Windows)
-- script: |
-    "%TEMP%\\rustup-init" --default-toolchain none -y
-    rustup set default-host x86_64-pc-windows-gnu
-  condition:
-    and(succeeded(),
-        eq(variables['Agent.OS'], 'Windows_NT'))
-  displayName: Install rustup (Windows)
-
-#
-# Check style
-#
-- bash: |
-    set -xeu -o pipefail
-    cargo fmt -- --check
-    cargo clippy --package fca4ynab -- -D warnings
-  condition: succeeded()
-  displayName: Check style
-
-#
 # Build and run tests
 #
 - bash: |
     set -xeu -o pipefail
     cargo test
-  condition:
-    succeeded()
+  condition: succeeded()
   displayName: Build and run tests
 
 #
@@ -82,8 +39,7 @@ steps:
   displayName: Set master build version variable
 - bash: |
     echo "##vso[task.setvariable variable=PLATFORM_SUFFIX]$(uname -m)-$(uname -s|tr A-Z a-z|sed 's/_.*$//')"
-  condition: |
-    succeeded()
+  condition: succeeded()
   displayName: Set platform suffix variable
 
 #
@@ -136,7 +92,7 @@ steps:
     repositoryName: borsboom/foreign-currency-accounts-for-ynab
     action: edit
     tag: release/$(Build.SourceBranchName)
-    title: Release $(Build.SourceBranchName)
+    title: $(Build.SourceBranchName)
     assets: $(Build.ArtifactStagingDirectory)/*
     assetUploadMode: replace
     isDraft: true

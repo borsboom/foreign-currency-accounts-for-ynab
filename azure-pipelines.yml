@@ -10,14 +10,19 @@ jobs:
   pool:
     vmImage: 'ubuntu-18.04'
   steps:
-  - template: etc/azure-pipelines/build-steps.yml
+  - template: etc/azure-pipelines/build.yml
 - job: macOS
   pool:
     vmImage: 'macOS-10.14'
   steps:
-  - template: etc/azure-pipelines/build-steps.yml
+  - template: etc/azure-pipelines/build.yml
 - job: Windows
   pool:
     vmImage: 'windows-2019'
   steps:
-  - template: etc/azure-pipelines/build-steps.yml
+  - template: etc/azure-pipelines/build.yml
+- job: Style
+  pool:
+    vmImage: 'ubuntu-18.04'
+  steps:
+  - template: etc/azure-pipelines/style.yml

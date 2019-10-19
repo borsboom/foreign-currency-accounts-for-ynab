@@ -1,0 +1,10 @@
+steps:
+- template: setup.yml
+- bash: |
+    cargo fmt -- --check
+  condition: succeeded()
+  displayName: Check format
+- bash: |
+    cargo clippy --package fca4ynab -- -D warnings
+  condition: succeeded()
+  displayName: Check clippy
