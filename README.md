@@ -169,18 +169,17 @@ for different currencies if you wish.
 
    | Platform           | Download link |
    |--------------------|---------------|
-   | Linux (x86 64-bit) | [fca4ynab-0.1.0-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.0/fca4ynab-0.1.0-x86_64-linux) |
-   | macOS              | [fca4ynab-0.1.0-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.0/fca4ynab-0.1.0-x86_64-darwin) |
-   | Windows (64-bit)   | [fca4ynab-0.1.0-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.0/fca4ynab-0.1.0-x86_64-mingw64.exe) |
+   | Linux (x86 64-bit) | [fca4ynab-0.1.1-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.1/fca4ynab-0.1.1-x86_64-linux) |
+   | macOS              | [fca4ynab-0.1.1-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.1/fca4ynab-0.1.1-x86_64-darwin) |
+   | Windows (64-bit)   | [fca4ynab-0.1.1-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.1/fca4ynab-0.1.1-x86_64-mingw64.exe) |
 
    If your platform isn't listed, you can [build from
    source](#build-from-source).
 
-
 5. On Linux and macOS, give the downloaded file execute permissions:
 
    ```
-   $ chmod a+x /path/to/fca4ynab-0.1.0-*
+   $ chmod a+x /path/to/fca4ynab-0.1.1-*
    ```
 
 6. Rename the binary to `fca4ynab` (`fca4ynab.exe` on Windows) and move it
@@ -332,12 +331,36 @@ For other options, run `fca4ynab --help`.
 ### Save budget ID and API keys configuration
 
 If you do not wish to pass the budget ID and API keys on the command-line every
-time you this tool, you can use environment variables to save them. See
-`fca4ynab --help` for the environment variable names (e.g. `[env:
-FCAY_BUDGET_ID=]` means the budget ID is set using the `FCAY_BUDGET_ID`
-environment variable).  This tool will also read environment variables from a
-file named `.env` in the ["dotenv"
-format](https://github.com/bkeepers/dotenv#usage) from current and parent
+time you this tool, you can save them in a configuration file, in the ["dotenv"
+format](https://github.com/bkeepers/dotenv#usage) format.
+
+The configuration file is named `env` and is located in one of these folders,
+depending on your operating system:
+
+|Platform | Value                                                   | Example                                                  |
+| ------- | ------------------------------------------------------- | -------------------------------------------------------- |
+| Linux   | `$XDG_CONFIG_HOME`/fca4ynab or `$HOME`/.config/fca4ynab | /home/alice/.config/fca4ynab                             |
+| macOS   | `$HOME`/Library/Preferences/io.borsboom.fca4ynab        | /Users/Alice/Library/Preferences/io.borsboom.fca4ynab    |
+| Windows | `{FOLDERID_RoamingAppData}`\\borsboom\\fca4ynab\\config | C:\Users\Alice\AppData\Roaming\borsboom\\fca4ynab\config |
+
+File format:
+
+```
+YNAB_ACCESS_TOKEN=<YOUR-BUDGET-ID>
+CURRENCY_CONVERTER_API_KEY=<CURRENCY-CONVERTER-API-KEY>
+YNAB_BUDGET_ID=<YOUR-BUDGET-ID>
+```
+
+For example,
+
+```
+YNAB_ACCESS_TOKEN=80ecafd5ea9678ef4fc7a75789e5f91b80ecafd5ea9678ef4fc7a75789e5f91b
+CURRENCY_CONVERTER_API_KEY=678ef4fc7a75789e5f91
+YNAB_BUDGET_ID=f91b80ec-fd5e-9678-f4fc-a75789e5f91b
+```
+
+You can also use environment variables, and this tool will also read
+configuration from a file named `.env` in the from current and parent
 directories.
 
 ### Scheduling
@@ -358,6 +381,15 @@ This tool uses a local data file stored in your operating system's standard
 data folder to keep track of the budget and transactions.  If you lose this
 data file, it's not a really big deal but it does mean the tool won't be able
 to update previously created transactions.
+
+The data file is named `data.sqlite3` and is stored in one of these folders,
+depending on your operating system:
+
+|Platform | Value                                                      | Example                                                       |
+| ------- | -----------------------------------------------------------| ------------------------------------------------------------- |
+| Linux   | `$XDG_DATA_HOME`/fca4ynab or `$HOME`/.local/share/fca4ynab | /home/alice/.local/share/fca4ynab                             |
+| macOS   | `$HOME`/Library/Application Support/io.borsboom.fca4ynab   | /Users/Alice/Library/Application Support/io.borsboom.fca4ynab |
+| Windows | `{FOLDERID_RoamingAppData}`\\borsboom\\fca4ynab\\data      | C:\\Users\\Alice\\AppData\\Roaming\\borsboom\\fca4ynab\\data         |
 
 ### Deleted transactions
 
@@ -395,5 +427,5 @@ nickname "**🇨🇦RBC Chequing**," and has `<CAD>` in the account notes instea
 ## Build from source
 
 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
-2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.0.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.0).
+2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.1.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.1.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.1).
 3. In the root of the source tree, run `cargo install --path .`.

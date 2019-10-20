@@ -1,3 +1,4 @@
+use log::debug;
 use std::env;
 use std::ffi::OsStr;
 
@@ -16,17 +17,22 @@ pub fn run() -> Result<()> {
 
 fn initialize() -> Result<()> {
     openssl_probe::init_ssl_cert_env_vars();
-    dotenv::dotenv().ok();
-    env_logger::init();
 
     let proj_dirs = directories::ProjectDirs::from("io", "borsboom", clap::crate_name!())
         .chain_err(|| "Failed to determine user data directory")?;
+    let mut configuration_file = proj_dirs.config_dir().to_path_buf();
+    configuration_file.push("env");
     let mut default_database_file = proj_dirs.data_dir().to_path_buf();
     default_database_file.push(DEFAULT_DATABASE_FILENAME);
 
+    dotenv::dotenv().ok();
+    dotenv::from_path(&configuration_file).ok();
     default_env(DATABASE_FILE_ENV, default_database_file);
     default_env(AUTO_APPROVE_TRANSACTIONS_ENV, false.to_string());
     default_env(AUTO_APPROVE_ADJUSTMENTS_ENV, false.to_string());
+
+    env_logger::init();
+    debug!("Using configuration file path: {:?}", configuration_file);
 
     Ok(())
 }
