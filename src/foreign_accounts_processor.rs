@@ -102,10 +102,11 @@ impl<'a> ForeignAccountsProcessor<'a> {
             &transactions_response_data
         );
 
-        if transactions_response_data.transactions.is_empty()
+        let had_changes = if transactions_response_data.transactions.is_empty()
             && Some(today_date) == initial_budget_state.last_run_date
         {
             println!("No new/updated/deleted transactions; nothing to do!");
+            false
         } else {
             println!("Loading budget settings from YNAB...");
             let budget_settings = ynab_client.get_budget_settings()?;
@@ -129,13 +130,20 @@ impl<'a> ForeignAccountsProcessor<'a> {
                 foreign_accounts,
                 difference_balances: RefCell::new(difference_balances),
             }
-            .process(transactions_response_data.transactions)?;
-        }
+            .process(transactions_response_data.transactions)?
+        };
 
-        budget_database.update_state(transactions_response_data.server_knowledge, today_date)
+        budget_database.update_state(
+            transactions_response_data.server_knowledge,
+            today_date,
+            had_changes,
+        )
     }
 
-    fn process(&self, latest_transactions: Vec<ynab_api::models::TransactionDetail>) -> Result<()> {
+    fn process(
+        &self,
+        latest_transactions: Vec<ynab_api::models::TransactionDetail>,
+    ) -> Result<bool> {
         let mut transactions_modifications = self.process_transactions(latest_transactions)?;
         self.create_adjustments(&mut transactions_modifications)?;
         self.save_transactions(transactions_modifications)
@@ -471,9 +479,10 @@ impl<'a> ForeignAccountsProcessor<'a> {
     fn save_transactions(
         &self,
         transactions_modifications: TransactionsModificationsData,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         if transactions_modifications.is_empty() {
             println!("No new/changed difference transactions; nothing to do!");
+            Ok(false)
         } else {
             debug!(
                 "New transaction to save to YNAB: {:#?}",
@@ -541,8 +550,8 @@ impl<'a> ForeignAccountsProcessor<'a> {
             } else {
                 println!("Done!");
             }
+            Ok(true)
         }
-        Ok(())
     }
 
     fn difference_account_key_for_save(&self, account_id: &YnabAccountId) -> DifferenceKey {

@@ -212,8 +212,14 @@ impl<'a> BudgetDatabase<'a> {
         &self,
         ynab_server_knowledge_: i64,
         last_run_date_: NaiveDate,
+        had_changes: bool,
     ) -> Result<()> {
-        if let Some(db_budget_id) = self.run_state.live_database_budget_id() {
+        let opt_db_budget_id = if had_changes {
+            self.run_state.live_database_budget_id()
+        } else {
+            self.run_state.dry_run_database_budget_id()
+        };
+        if let Some(db_budget_id) = opt_db_budget_id {
             use schema::budgets::dsl::*;
             diesel::update(schema::budgets::table.filter(id.eq(db_budget_id)))
                 .set((
