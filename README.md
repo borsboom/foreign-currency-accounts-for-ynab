@@ -263,7 +263,7 @@ adjustment categories for each currency if you prefer.
 
 ### Transfers between currencies
 
-This tool does not create balancing transactions for transfers to other
+This tool does not create difference transactions for transfers to other
 accounts by default, for two important reasons:
 
 * When you transfer money to a different currency account, the exchange rate
@@ -272,7 +272,7 @@ accounts by default, for two important reasons:
 
 * The other account should only see a single transaction of the full converted
   amount, since that's what the real bank account it's connected to will have.
-  A balancing transaction would create a second transaction and make
+  A difference transaction would create a second transaction and make
   reconciliation difficult.
 
 To enter a transfer to a different currency account, you must use a
@@ -342,12 +342,12 @@ work out fine!
 
 ### Forcing or preventing automatic conversions
 
-If you want to force a transfer transaction to have a balancing transaction
+If you want to force a transfer transaction to have a difference transaction
 created despite the above, you can put `<CONVERT>` in the memo field.
 Conversely, if you _don't_ want a non-transfer transaction to be converted, put
 `<NOCONVERT>` in the memo field.
 
-If there's an destination account that should _always_ have balancing
+If there's an destination account that should _always_ have difference
 transactions created for transfers to/from it, put `<CONVERT>` in the account's
 name or notes.  I use this for "virtual" tracking accounts that I use to track
 business expenses, which are not connected to real financial institution
