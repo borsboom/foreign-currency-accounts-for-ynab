@@ -74,10 +74,18 @@ the Euro difference account would hold $10.00, since
 
 ### Limitations
 
-* Not going to help you out if you're spending in a foreign currency using a
-  local currency account (e.g. using a U.S. credit card while visiting Europe),
-  since there's no way to know what rate your financial institution will use
-  for transactions.
+* This approach assumes you have a "home" currency that you use for your
+  budgeting.  It's probably the currency where you live most of the time and do
+  the majority of your spending, but it could be the currency that you earn
+  most of your money in.  If you split your time evenly between countries or
+  are truly global, you may not have a single "home" in this sense, in which
+  case you may be better off maintaining separate budgets for your different
+  home currencies.
+
+* This tool doesn't help you out if you're spending in a foreign currency using
+  a local currency account (e.g. using a U.S. credit card while visiting
+  Europe), since there's no way to know what rate your financial institution
+  will use for transactions.
 
 * Probably not very useful for hyper-inflating currencies, but I'm not sure how
   you'd budget effectively with such a currency anyway.  Make a big exchange
