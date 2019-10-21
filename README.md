@@ -12,6 +12,33 @@ trying a few other ways first).
 
 **Preview version!**
 
+### Table of contents
+
+- [Foreign currency accounts for YNAB.](#foreign-currency-accounts-for-ynab)
+    - [Table of contents](#table-of-contents)
+  - [Overview](#overview)
+    - [Features](#features)
+    - [Approach](#approach)
+    - [Limitations](#limitations)
+  - [How to use](#how-to-use)
+    - [Budget setup](#budget-setup)
+    - [Tool setup](#tool-setup)
+    - [First run](#first-run)
+    - [Set budget category for exchange rate fluctuations](#set-budget-category-for-exchange-rate-fluctuations)
+    - [Transfers between currencies](#transfers-between-currencies)
+    - [Forcing or preventing automatic conversions](#forcing-or-preventing-automatic-conversions)
+    - [Other options](#other-options)
+    - [Save budget ID and API keys configuration](#save-budget-id-and-api-keys-configuration)
+    - [Scheduling](#scheduling)
+  - [Additional notes](#additional-notes)
+    - [Reporting problems](#reporting-problems)
+    - [Data file](#data-file)
+    - [Deleted transactions](#deleted-transactions)
+    - [Exchange rates](#exchange-rates)
+    - [Making accounts look nicer](#making-accounts-look-nicer)
+  - [Development](#development)
+    - [Build from source](#build-from-source)
+
 ## Overview
 
 ### Features
@@ -383,6 +410,11 @@ to set that up for yourself.
 
 ## Additional notes
 
+### Reporting problems
+
+To report a bug, panic, or other problem, [submit an issue on the issue
+tracker](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/new).
+
 ### Data file
 
 This tool uses a local data file stored in your operating system's standard
@@ -432,7 +464,9 @@ instead and then put the emoji flag of the currency's country in the account
 nickname.  For example, my Royal Bank of Canada chequing account has the
 nickname "**🇨🇦RBC Chequing**," and has `<CAD>` in the account notes instead.
 
-## Build from source
+## Development
+
+### Build from source
 
 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
 2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.1.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.1.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.1).
