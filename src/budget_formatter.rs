@@ -90,11 +90,7 @@ impl<'a> BudgetFormatter<'a> {
         amount: Decimal,
     ) -> String {
         let currency_format = &self.settings.currency_format;
-        let abs_amount: Decimal = if minus_before_symbol_first {
-            amount.abs()
-        } else {
-            amount
-        };
+        let abs_amount: Decimal = amount.abs();
         let raw_formatted = if all_decimal_digits {
             format!("{}", abs_amount)
         } else {
@@ -114,7 +110,12 @@ impl<'a> BudgetFormatter<'a> {
                 .expect("split_around_decimal should have two elements"),
         );
         let group_separated = format!(
-            "{}{}{}",
+            "{}{}{}{}",
+            if !minus_before_symbol_first && amount < Decimal::zero() {
+                "-"
+            } else {
+                ""
+            },
             group_separated_before_decimal,
             currency_format.decimal_separator,
             split_around_decimal
@@ -229,8 +230,8 @@ mod tests {
         );
         assert_eq!(
             BudgetFormatter::new(&NO_SYMBOL_SETTINGS)
-                .format_milliunits(Milliunits::from_scaled_i64(-12_345)),
-            "-12,345"
+                .format_milliunits(Milliunits::from_scaled_i64(-123_456)),
+            "-123,456"
         );
         assert_eq!(
             BudgetFormatter::new(&US_SETTINGS)
@@ -262,9 +263,9 @@ mod tests {
         assert_eq!(
             BudgetFormatter::new(&NO_SYMBOL_SETTINGS).format_milliunits_with_code(
                 CurrencyCode::from_str("XXY").unwrap(),
-                Milliunits::from_scaled_i64(-12_345_678)
+                Milliunits::from_scaled_i64(-123_456_789)
             ),
-            "-12.345,678 XXY"
+            "-123.456,789 XXY"
         );
     }
 
