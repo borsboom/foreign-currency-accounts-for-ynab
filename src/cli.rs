@@ -87,8 +87,8 @@ fn get_clap_matches() -> clap::ArgMatches<'static> {
             clap::Arg::with_name(YNAB_BUDGET_ID_ARG)
                 .env(YNAB_BUDGET_ID_ENV)
                 .long(YNAB_BUDGET_ID_ARG)
-                .value_name("YNAB budget identifier (see documentation for setup)")
-                .help("ID")
+                .value_name("ID")
+                .help("YNAB budget identifier (see documentation for setup)")
                 .takes_value(true)
                 .required(true),
         )
