@@ -2,6 +2,7 @@
 
 ## 0.1.2
 
+Changes since 0.1.1:
 - Fix extra group separator in currency formatting for negative numbers when
   minus not before symbol.
 - Save last-knowledge-of-server if dry-run doesn't detect any changes need to
@@ -9,6 +10,7 @@
 
 ## 0.1.1
 
+Changes since 0.1.0:
 - Load configuration file from system configuration folder.
 
 ## 0.1.0
