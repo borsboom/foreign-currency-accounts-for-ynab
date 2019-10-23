@@ -43,7 +43,10 @@ struct ForeignCommonData {
     difference_key: Option<DifferenceKey>,
     transaction_date: NaiveDate,
     transaction_cleared: ynab_api::models::transaction_detail::Cleared,
+    transaction_approved: bool,
     transaction_flag_color: Option<ynab_api::models::transaction_detail::FlagColor>,
+    transaction_has_matched_transaction_id: bool,
+    transaction_has_import_id: bool,
 }
 
 #[derive(Debug)]
@@ -172,7 +175,12 @@ impl<'a> ForeignAccountsProcessor<'a> {
                 difference_key,
                 transaction_date: parse_iso_date(&foreign_parent_transaction.date)?,
                 transaction_cleared: foreign_parent_transaction.cleared,
+                transaction_approved: foreign_parent_transaction.approved,
                 transaction_flag_color: foreign_parent_transaction.flag_color,
+                transaction_has_matched_transaction_id: foreign_parent_transaction
+                    .matched_transaction_id
+                    .is_some(),
+                transaction_has_import_id: foreign_parent_transaction.import_id.is_some(),
             };
             for (subtransaction_index, foreign_subtransaction) in foreign_parent_transaction
                 .subtransactions
@@ -262,6 +270,9 @@ impl<'a> ForeignAccountsProcessor<'a> {
             || (foreign_data.transfer_account_id.is_some()
                 && !convert_transfer_account
                 && !force_convert)
+            || (common_data.transaction_has_matched_transaction_id
+                && common_data.transaction_has_import_id
+                && !common_data.transaction_approved)
         {
             // The YNAB API does not support deleting a transaction, so instead
             // we update the difference transaction to a zero amount.
@@ -485,7 +496,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
             Ok(false)
         } else {
             debug!(
-                "New transaction to save to YNAB: {:#?}",
+                "New transactions to save to YNAB: {:#?}",
                 transactions_modifications.create_transactions
             );
             if !transactions_modifications.create_transactions.is_empty() && !self.dry_run {
