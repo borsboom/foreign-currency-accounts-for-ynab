@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 use log::debug;
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::budget_formatter::*;
 use crate::constants::*;
@@ -15,7 +15,7 @@ use crate::types::*;
 use crate::utilities::*;
 use crate::ynab_client::*;
 
-pub struct ForeignAccountsProcessor<'a> {
+pub struct ForeignTransactionsProcessor<'a> {
     budget_database: &'a BudgetDatabase<'a>,
     ynab_client: &'a YnabBudgetClient<'a>,
     today_date: NaiveDate,
@@ -36,6 +36,7 @@ struct TransactionsModificationsData {
     create_transactions: Vec<ynab_api::models::SaveTransaction>,
     update_transactions: Vec<ynab_api::models::UpdateTransaction>,
     create_import_ids_foreign_ynab_transaction_ids: HashMap<YnabImportId, YnabTransactionId>,
+    delete_difference_transaction_ids: HashSet<YnabTransactionId>,
 }
 
 #[derive(Debug)]
@@ -74,7 +75,7 @@ struct TransactionModificationData<'a> {
     amount: Milliunits,
 }
 
-impl<'a> ForeignAccountsProcessor<'a> {
+impl<'a> ForeignTransactionsProcessor<'a> {
     pub fn run(
         database: &'a Database,
         ynab_client: &'a YnabBudgetClient,
@@ -118,7 +119,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
             let (foreign_accounts, difference_balances) =
                 ForeignAccounts::load(ynab_client, &budget_formatter, local_currency)?;
 
-            ForeignAccountsProcessor {
+            ForeignTransactionsProcessor {
                 budget_database: &budget_database,
                 ynab_client,
                 today_date,
@@ -265,7 +266,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
             },
             None => false,
         };
-        let (difference_amount, difference_memo) = if foreign_data.deleted
+        let (difference_amount, difference_memo, difference_delete) = if foreign_data.deleted
             || force_no_convert
             || (foreign_data.transfer_account_id.is_some()
                 && !convert_transfer_account
@@ -282,6 +283,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
                     "<DELETED>{}{}",
                     foreign_data.difference_memo_prefix, difference_memo_suffix
                 ),
+                true,
             )
         } else if let Some(difference_key) = common_data.difference_key {
             let exchange_rate = self.get_transaction_date_exchange_rate(
@@ -300,6 +302,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
                     foreign_data.difference_memo_prefix,
                     difference_memo_suffix
                 ),
+                false,
             )
         } else {
             (
@@ -308,6 +311,7 @@ impl<'a> ForeignAccountsProcessor<'a> {
                     "<MOVED TO LOCAL CURRENCY ACCOUNT>{}{}",
                     foreign_data.difference_memo_prefix, difference_memo_suffix
                 ),
+                true,
             )
         };
         let opt_existing_difference_transaction = self
@@ -337,6 +341,11 @@ impl<'a> ForeignAccountsProcessor<'a> {
                 .get_difference_account_id(difference_key)
                 .expect("Difference account should exist");
             if let Some(difference_transaction) = &opt_existing_difference_transaction {
+                if difference_delete {
+                    transactions_modifications
+                        .delete_difference_transaction_ids
+                        .insert(difference_transaction.transaction_id.clone());
+                }
                 self.print_transaction_modification(&TransactionModificationData {
                     prefix: "Update difference",
                     difference_key,
@@ -496,6 +505,41 @@ impl<'a> ForeignAccountsProcessor<'a> {
             Ok(false)
         } else {
             debug!(
+                "Changed transactions to save to YNAB: {:#?}",
+                transactions_modifications.update_transactions
+            );
+            if !transactions_modifications.update_transactions.is_empty() && !self.dry_run {
+                println!("Saving changed transactions to YNAB...");
+                let updated_transactions = self
+                    .ynab_client
+                    .update_transactions(transactions_modifications.update_transactions)?;
+                debug!(
+                    "Response from YNAB after saving changed transactions: {:#?}",
+                    updated_transactions
+                );
+                for updated_transaction in updated_transactions {
+                    let updated_transaction_id = &YnabTransactionId(updated_transaction.id);
+                    if transactions_modifications
+                        .delete_difference_transaction_ids
+                        .contains(&updated_transaction_id)
+                    {
+                        self.budget_database
+                            .delete_difference_transaction(updated_transaction_id)?;
+                    } else {
+                        self.budget_database.update_difference_transaction(
+                            updated_transaction_id,
+                            Milliunits::from_scaled_i64(updated_transaction.amount),
+                            self.difference_account_key_for_save(&YnabAccountId(
+                                updated_transaction.account_id,
+                            )),
+                            updated_transaction.transfer_account_id.and_then(|a| {
+                                self.transfer_account_key_for_save(&YnabAccountId(a))
+                            }),
+                        )?;
+                    }
+                }
+            }
+            debug!(
                 "New transactions to save to YNAB: {:#?}",
                 transactions_modifications.create_transactions
             );
@@ -527,32 +571,6 @@ impl<'a> ForeignAccountsProcessor<'a> {
                             )?;
                         }
                     }
-                }
-            }
-            debug!(
-                "Changed transactions to save to YNAB: {:#?}",
-                transactions_modifications.update_transactions
-            );
-            if !transactions_modifications.update_transactions.is_empty() && !self.dry_run {
-                println!("Saving changed transactions to YNAB...");
-                let updated_transactions = self
-                    .ynab_client
-                    .update_transactions(transactions_modifications.update_transactions)?;
-                debug!(
-                    "Response from YNAB after saving changed transactions: {:#?}",
-                    updated_transactions
-                );
-                for updated_transaction in updated_transactions {
-                    self.budget_database.update_difference_transaction(
-                        &YnabTransactionId(updated_transaction.id),
-                        Milliunits::from_scaled_i64(updated_transaction.amount),
-                        self.difference_account_key_for_save(&YnabAccountId(
-                            updated_transaction.account_id,
-                        )),
-                        updated_transaction
-                            .transfer_account_id
-                            .and_then(|a| self.transfer_account_key_for_save(&YnabAccountId(a))),
-                    )?;
                 }
             }
             if self.dry_run {
@@ -636,6 +654,7 @@ impl TransactionsModificationsData {
             create_transactions: Vec::new(),
             update_transactions: Vec::new(),
             create_import_ids_foreign_ynab_transaction_ids: HashMap::new(),
+            delete_difference_transaction_ids: HashSet::new(),
         }
     }
 

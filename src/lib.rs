@@ -14,7 +14,7 @@ mod currency_converter_client;
 mod database;
 mod exchange_rates;
 mod foreign_accounts;
-mod foreign_accounts_processor;
+mod foreign_transactions_processor;
 mod import_id_generator;
 mod schema;
 mod types;

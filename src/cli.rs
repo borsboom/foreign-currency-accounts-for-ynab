@@ -6,7 +6,7 @@ use crate::constants::*;
 use crate::currency_converter_client::*;
 use crate::database::*;
 use crate::errors::*;
-use crate::foreign_accounts_processor::*;
+use crate::foreign_transactions_processor::*;
 use crate::utilities::*;
 use crate::ynab_client::*;
 
@@ -149,7 +149,7 @@ fn run_clap_matches(matches: clap::ArgMatches) -> Result<()> {
             .expect("CLAP matches should have DATABASE_FILE_ARG"),
         dry_run,
     )?;
-    ForeignAccountsProcessor::run(
+    ForeignTransactionsProcessor::run(
         &database,
         &ynab_client,
         &currency_converter_client,

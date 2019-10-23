@@ -319,6 +319,21 @@ impl<'a> BudgetDatabase<'a> {
         }
         Ok(())
     }
+
+    pub fn delete_difference_transaction(
+        &self,
+        difference_transaction_id: &YnabTransactionId,
+    ) -> Result<()> {
+        if let Some(db_budget_id) = self.run_state.live_database_budget_id() {
+            use schema::difference_transactions::dsl::*;
+            diesel::delete(schema::difference_transactions::table)
+                .filter(budget_id.eq(db_budget_id))
+                .filter(difference_ynab_transaction_id.eq(&difference_transaction_id.0))
+                .execute(self.connection)
+                .chain_err(|| "Failed to delete difference transaction in database")?;
+        }
+        Ok(())
+    }
 }
 
 impl BudgetRunState {
