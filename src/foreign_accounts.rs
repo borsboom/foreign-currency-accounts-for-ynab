@@ -10,10 +10,10 @@ use crate::utilities::*;
 use crate::ynab_client::*;
 
 #[derive(Debug)]
-pub struct ForeignAccounts {
+pub struct ForeignAccounts<'a> {
     all_used_foreign_currencies: HashSet<CurrencyCode>,
-    account_id_data: HashMap<YnabAccountId, AccountData>,
-    difference_account_ids: HashMap<DifferenceKey, YnabAccountId>,
+    account_id_data: HashMap<YnabAccountId<'a>, AccountData>,
+    difference_account_ids: HashMap<DifferenceKey, YnabAccountId<'a>>,
 }
 
 pub struct DifferenceBalances {
@@ -32,12 +32,12 @@ pub enum AccountData {
     Difference { difference_key: DifferenceKey },
 }
 
-impl ForeignAccounts {
+impl<'a> ForeignAccounts<'a> {
     pub fn load(
         ynab_client: &YnabBudgetClient,
         budget_formatter: &BudgetFormatter,
         local_currency: CurrencyCode,
-    ) -> Result<(ForeignAccounts, DifferenceBalances)> {
+    ) -> Result<(ForeignAccounts<'a>, DifferenceBalances)> {
         let mut all_used_foreign_currencies = HashSet::new();
         let mut account_id_data = HashMap::new();
         let mut difference_account_ids = HashMap::new();
@@ -49,7 +49,7 @@ impl ForeignAccounts {
                 let local_account_data = || AccountData::Local {
                     force_convert: account_matches_regex(&FORCE_CONVERT_REGEX, &account),
                 };
-                let account_id = YnabAccountId(account.id.clone());
+                let account_id = YnabAccountId::new(account.id.clone());
                 let opt_foreign_account_key = Self::foreign_account_key(&account)?;
                 let opt_difference_account_key = Self::difference_account_key(&account)?;
                 if opt_foreign_account_key.is_some() && opt_difference_account_key.is_some() {
@@ -133,7 +133,7 @@ impl ForeignAccounts {
         ))
     }
 
-    pub fn get_account_data(&self, account_id: &YnabAccountId) -> Option<&AccountData> {
+    pub fn get_account_data(&'a self, account_id: &'a YnabAccountId) -> Option<&'a AccountData> {
         self.account_id_data.get(account_id)
     }
 
@@ -184,10 +184,10 @@ impl ForeignAccounts {
         Ok(Some(DifferenceKey::new(currency, is_tracking)))
     }
 
-    fn account_name_and_note_regex_capture<'a>(
+    fn account_name_and_note_regex_capture<'b>(
         regex: &Regex,
-        account: &'a ynab_api::models::Account,
-    ) -> Result<Option<&'a str>> {
+        account: &'b ynab_api::models::Account,
+    ) -> Result<Option<&'b str>> {
         let mut name_captures_iter = regex.captures_iter(&account.name);
         if let Some(name_captures) = name_captures_iter.next() {
             ensure!(
@@ -237,7 +237,7 @@ impl<'a> DifferenceBalances {
     ) -> Result<DifferenceBalances> {
         let mut balances = HashMap::new();
         for account in raw_accounts {
-            match account_id_data.get(&YnabAccountId(account.id)) {
+            match account_id_data.get(&YnabAccountId::new(account.id)) {
                 None => (),
                 Some(AccountData::Local { .. }) => (),
                 Some(AccountData::Foreign { difference_key }) => {

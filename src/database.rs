@@ -1,3 +1,5 @@
+pub mod models;
+
 use chrono::{Datelike, NaiveDate};
 use diesel::prelude::*;
 use log::debug;
@@ -5,6 +7,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path;
 
+use crate::database::models::*;
 use crate::errors::*;
 use crate::schema;
 use crate::types::*;
@@ -25,21 +28,6 @@ pub struct BudgetDatabase<'a> {
 enum BudgetRunState {
     DryRun(Option<i32>),
     Live(i32),
-}
-
-#[derive(Debug)]
-pub struct BudgetState {
-    pub start_date: NaiveDate,
-    pub ynab_server_knowledge: Option<i64>,
-    pub last_run_date: Option<NaiveDate>,
-}
-
-#[derive(Debug)]
-pub struct DifferenceTransactionData {
-    pub transaction_id: YnabTransactionId,
-    pub amount: Milliunits,
-    pub difference_key: DifferenceKey,
-    pub transfer_key: Option<DifferenceKey>,
 }
 
 impl Database {
@@ -103,7 +91,7 @@ impl Database {
             .collect::<Result<_>>()
     }
 
-    pub fn put_exchange_rate(
+    pub fn create_exchange_rate(
         &self,
         from_currency: CurrencyCode,
         to_currency: CurrencyCode,
@@ -210,53 +198,76 @@ impl Database {
 impl<'a> BudgetDatabase<'a> {
     pub fn update_state(
         &self,
-        ynab_server_knowledge_: i64,
-        last_run_date_: NaiveDate,
-        had_changes: bool,
+        ynab_server_knowledge: i64,
+        last_run_date: NaiveDate,
+        update_state: UpdateBudgetState,
     ) -> Result<()> {
-        let opt_db_budget_id = if had_changes {
+        let opt_db_budget_id = if update_state.had_changes {
             self.run_state.live_database_budget_id()
         } else {
             self.run_state.dry_run_database_budget_id()
         };
         if let Some(db_budget_id) = opt_db_budget_id {
-            use schema::budgets::dsl::*;
-            diesel::update(schema::budgets::table.filter(id.eq(db_budget_id)))
-                .set((
-                    ynab_server_knowledge.eq(Some(ynab_server_knowledge_)),
-                    last_run_date.eq(Some(last_run_date_.num_days_from_ce())),
-                ))
-                .execute(self.connection)
-                .map(|_| ())
+            self.connection
+                .transaction(|| {
+                    // Must delete before creating, otherwise when we insert we
+                    // might violate a unique constraint.
+                    self.delete_difference_transactions(
+                        db_budget_id,
+                        update_state.delete_difference_transaction_ids,
+                    )?;
+                    self.create_difference_transactions(
+                        db_budget_id,
+                        &update_state.create_difference_transactions,
+                    )?;
+                    self.update_difference_transactions(
+                        db_budget_id,
+                        &update_state.update_difference_transactions,
+                    )?;
+                    self.update_budget(db_budget_id, ynab_server_knowledge, last_run_date)
+                })
                 .chain_err(|| "Failed to save budget state in database")
         } else {
             Ok(())
         }
     }
 
-    pub fn get_difference_transaction(
+    pub fn get_difference_transaction_by_foreign_id(
         &self,
         foreign_ynab_transaction_id_: &YnabTransactionId,
-    ) -> Result<Option<DifferenceTransactionData>> {
+    ) -> Result<Option<DifferenceTransaction>> {
         if let Some(db_budget_id) = self.run_state.dry_run_database_budget_id() {
             use schema::difference_transactions::dsl::*;
             schema::difference_transactions::table
-                .select((difference_ynab_transaction_id, difference_amount_milliunits, difference_currency_code, difference_is_tracking, transfer_currency_code, transfer_is_tracking))
+                .select((difference_ynab_transaction_id,
+                         difference_amount_milliunits,
+                         difference_currency_code,
+                         difference_is_tracking,
+                         transfer_currency_code,
+                         transfer_is_tracking))
                 .filter(budget_id.eq(db_budget_id))
-                .filter(foreign_ynab_transaction_id.eq(&foreign_ynab_transaction_id_.0))
+                .filter(foreign_ynab_transaction_id.eq(&foreign_ynab_transaction_id_.raw))
                 .first::<(String, i64, String, i32, Option<String>, Option<i32>)>(self.connection)
                 .optional()
                 .map(|opt| {
-                    opt.map(|(transaction_id, amount, difference_currency_code_, difference_is_tracking_, transfer_currency_code_, transfer_is_tracking_)| DifferenceTransactionData {
-                        transaction_id: YnabTransactionId(transaction_id),
+                    opt.map(|(difference_transaction_id,
+                              amount,
+                              difference_currency_code_,
+                              difference_is_tracking_,
+                              transfer_currency_code_,
+                              transfer_is_tracking_)| DifferenceTransaction {
+                        difference_transaction_id: YnabTransactionId::new(difference_transaction_id),
                         amount: Milliunits::from_scaled_i64(amount),
                         difference_key: DifferenceKey {
-                            currency: CurrencyCode::from_str(&difference_currency_code_).expect("difference_transactions.difference_currency_code should be valid currency code"),
+                            currency: CurrencyCode::from_str(&difference_currency_code_)
+                                .expect("difference_transactions.difference_currency_code should be valid currency code"),
                             is_tracking: difference_is_tracking_ != 0,
                         },
                         transfer_key: transfer_currency_code_.map(|code| DifferenceKey {
-                            currency: CurrencyCode::from_str(&code).expect("difference_transactions.transfer_currency_code should be valid currency code"),
-                            is_tracking: transfer_is_tracking_.expect("transfer_is_tracking should not be null when transfer_currency_code is non-null") != 0,
+                            currency: CurrencyCode::from_str(&code)
+                                .expect("difference_transactions.transfer_currency_code should be valid currency code"),
+                            is_tracking: transfer_is_tracking_
+                                .expect("transfer_is_tracking should not be null when transfer_currency_code is non-null") != 0,
                         }),
                     })
                 })
@@ -266,71 +277,94 @@ impl<'a> BudgetDatabase<'a> {
         }
     }
 
-    pub fn create_difference_transaction(
+    fn update_budget(
         &self,
-        foreign_transaction_id: &YnabTransactionId,
-        difference_transaction_id: &YnabTransactionId,
-        difference_amount: Milliunits,
-        difference_key: DifferenceKey,
-        transfer_key: Option<DifferenceKey>,
-    ) -> Result<()> {
-        if let Some(db_budget_id) = self.run_state.live_database_budget_id() {
-            use schema::difference_transactions::dsl::*;
+        db_budget_id: i32,
+        ynab_server_knowledge_: i64,
+        last_run_date_: NaiveDate,
+    ) -> QueryResult<()> {
+        use schema::budgets::dsl::*;
+        diesel::update(schema::budgets::table.filter(id.eq(db_budget_id)))
+            .set((
+                ynab_server_knowledge.eq(Some(ynab_server_knowledge_)),
+                last_run_date.eq(Some(last_run_date_.num_days_from_ce())),
+            ))
+            .execute(self.connection)?;
+        Ok(())
+    }
+
+    fn delete_difference_transactions(
+        &self,
+        db_budget_id: i32,
+        delete_difference_transaction_ids: HashSet<YnabTransactionId>,
+    ) -> QueryResult<()> {
+        use schema::difference_transactions::dsl::*;
+        diesel::delete(schema::difference_transactions::table)
+            .filter(budget_id.eq(db_budget_id))
+            .filter(
+                difference_ynab_transaction_id
+                    .eq_any(delete_difference_transaction_ids.into_iter().map(|v| v.raw)),
+            )
+            .execute(self.connection)?;
+        Ok(())
+    }
+
+    fn create_difference_transactions(
+        &self,
+        db_budget_id: i32,
+        transactions: &[CreateDifferenceTransaction],
+    ) -> QueryResult<()> {
+        use schema::difference_transactions::dsl::*;
+        for transaction in transactions {
             diesel::insert_into(schema::difference_transactions::table)
                 .values((
                     budget_id.eq(db_budget_id),
-                    foreign_ynab_transaction_id.eq(&foreign_transaction_id.0),
-                    difference_ynab_transaction_id.eq(&difference_transaction_id.0),
-                    difference_amount_milliunits.eq(difference_amount.to_scaled_i64()),
-                    difference_currency_code.eq(difference_key.currency.to_str()),
-                    difference_is_tracking.eq(if difference_key.is_tracking { 1 } else { 0 }),
-                    transfer_currency_code.eq(transfer_key.as_ref().map(|k| k.currency.to_str())),
-                    transfer_is_tracking
-                        .eq(transfer_key.map(|k| if k.is_tracking { 1 } else { 0 })),
+                    foreign_ynab_transaction_id.eq(&transaction.foreign_transaction_id.raw),
+                    difference_ynab_transaction_id
+                        .eq(&transaction.inner.difference_transaction_id.raw),
+                    difference_amount_milliunits.eq(transaction.inner.amount.to_scaled_i64()),
+                    difference_currency_code.eq(transaction.inner.difference_key.currency.to_str()),
+                    difference_is_tracking
+                        .eq(bool_to_int(transaction.inner.difference_key.is_tracking)),
+                    transfer_currency_code.eq(transaction
+                        .inner
+                        .transfer_key
+                        .as_ref()
+                        .map(|k| k.currency.to_str())),
+                    transfer_is_tracking.eq(transaction
+                        .inner
+                        .transfer_key
+                        .map(|k| bool_to_int(k.is_tracking))),
                 ))
-                .execute(self.connection)
-                .chain_err(|| "Failed to save new difference transaction to database")?;
+                .execute(self.connection)?;
         }
         Ok(())
     }
 
-    pub fn update_difference_transaction(
+    fn update_difference_transactions(
         &self,
-        difference_transaction_id: &YnabTransactionId,
-        difference_amount: Milliunits,
-        difference_key: DifferenceKey,
-        transfer_key: Option<DifferenceKey>,
-    ) -> Result<()> {
-        if let Some(db_budget_id) = self.run_state.live_database_budget_id() {
-            use schema::difference_transactions::dsl::*;
+        db_budget_id: i32,
+        transactions: &[DifferenceTransaction],
+    ) -> QueryResult<()> {
+        use schema::difference_transactions::dsl::*;
+        for transaction in transactions {
             diesel::update(schema::difference_transactions::table)
                 .filter(budget_id.eq(db_budget_id))
-                .filter(difference_ynab_transaction_id.eq(&difference_transaction_id.0))
+                .filter(
+                    difference_ynab_transaction_id.eq(&transaction.difference_transaction_id.raw),
+                )
                 .set((
-                    difference_amount_milliunits.eq(difference_amount.to_scaled_i64()),
-                    difference_currency_code.eq(difference_key.currency.to_str()),
-                    difference_is_tracking.eq(if difference_key.is_tracking { 1 } else { 0 }),
-                    transfer_currency_code.eq(transfer_key.as_ref().map(|k| k.currency.to_str())),
+                    difference_amount_milliunits.eq(transaction.amount.to_scaled_i64()),
+                    difference_currency_code.eq(transaction.difference_key.currency.to_str()),
+                    difference_is_tracking.eq(bool_to_int(transaction.difference_key.is_tracking)),
+                    transfer_currency_code.eq(transaction
+                        .transfer_key
+                        .as_ref()
+                        .map(|k| k.currency.to_str())),
                     transfer_is_tracking
-                        .eq(transfer_key.map(|k| if k.is_tracking { 1 } else { 0 })),
+                        .eq(transaction.transfer_key.map(|k| bool_to_int(k.is_tracking))),
                 ))
-                .execute(self.connection)
-                .chain_err(|| "Failed to save difference transaction in database")?;
-        }
-        Ok(())
-    }
-
-    pub fn delete_difference_transaction(
-        &self,
-        difference_transaction_id: &YnabTransactionId,
-    ) -> Result<()> {
-        if let Some(db_budget_id) = self.run_state.live_database_budget_id() {
-            use schema::difference_transactions::dsl::*;
-            diesel::delete(schema::difference_transactions::table)
-                .filter(budget_id.eq(db_budget_id))
-                .filter(difference_ynab_transaction_id.eq(&difference_transaction_id.0))
-                .execute(self.connection)
-                .chain_err(|| "Failed to delete difference transaction in database")?;
+                .execute(self.connection)?;
         }
         Ok(())
     }
@@ -349,5 +383,13 @@ impl BudgetRunState {
             BudgetRunState::DryRun(option_id) => *option_id,
             BudgetRunState::Live(id) => Some(*id),
         }
+    }
+}
+
+fn bool_to_int(value: bool) -> i32 {
+    if value {
+        1
+    } else {
+        0
     }
 }

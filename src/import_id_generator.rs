@@ -25,6 +25,6 @@ impl ImportIdGenerator {
         let mut next_number = self.next_number.borrow_mut();
         let result = format!("{}:{}", self.prefix, next_number);
         *next_number += 1;
-        YnabImportId(result)
+        YnabImportId::new(result)
     }
 }

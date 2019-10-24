@@ -67,8 +67,12 @@ impl<'a> ExchangeRatesCache<'a> {
                         got_currency
                     )
                 })?;
-            self.database
-                .put_exchange_rate(got_currency, to_currency, date, got_exchange_rate)?;
+            self.database.create_exchange_rate(
+                got_currency,
+                to_currency,
+                date,
+                got_exchange_rate,
+            )?;
             loaded_rates.insert(got_currency, got_exchange_rate);
         }
         let &rate = loaded_rates.get(&from_currency).chain_err(|| {

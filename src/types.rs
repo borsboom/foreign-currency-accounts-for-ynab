@@ -18,13 +18,19 @@ pub struct Milliunits(Decimal);
 pub struct ExchangeRate(Decimal);
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct YnabTransactionId(pub String);
+pub struct YnabTransactionId<'a> {
+    pub raw: Cow<'a, str>,
+}
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct YnabImportId(pub String);
+pub struct YnabImportId<'a> {
+    pub raw: Cow<'a, str>,
+}
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct YnabAccountId(pub String);
+pub struct YnabAccountId<'a> {
+    pub raw: Cow<'a, str>,
+}
 
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DifferenceKey {
@@ -207,15 +213,39 @@ impl ExchangeRate {
     }
 }
 
-impl fmt::Display for YnabTransactionId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+impl<'a> YnabTransactionId<'a> {
+    pub fn new<S: Into<Cow<'a, str>>>(raw: S) -> YnabTransactionId<'a> {
+        YnabTransactionId { raw: raw.into() }
     }
 }
 
-impl fmt::Display for YnabImportId {
+impl<'a> fmt::Display for YnabTransactionId<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.raw)
+    }
+}
+
+impl<'a> YnabImportId<'a> {
+    pub fn new<S: Into<Cow<'a, str>>>(raw: S) -> YnabImportId<'a> {
+        YnabImportId { raw: raw.into() }
+    }
+}
+
+impl<'a> fmt::Display for YnabImportId<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.raw)
+    }
+}
+
+impl<'a> YnabAccountId<'a> {
+    pub fn new<S: Into<Cow<'a, str>>>(raw: S) -> YnabAccountId<'a> {
+        YnabAccountId { raw: raw.into() }
+    }
+}
+
+impl<'a> fmt::Display for YnabAccountId<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.raw)
     }
 }
 
@@ -225,12 +255,6 @@ impl DifferenceKey {
             currency,
             is_tracking,
         }
-    }
-}
-
-impl fmt::Display for YnabAccountId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
     }
 }
 
