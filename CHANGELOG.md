@@ -1,6 +1,12 @@
 # Change log
 
 
+## 0.1.4
+
+Changes since 0.1.3:
+- Don't try to update a difference transaction that was manually deleted.
+
+
 ## 0.1.3
 
 Changes since 0.1.2:
