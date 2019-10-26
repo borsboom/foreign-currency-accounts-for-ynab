@@ -35,6 +35,10 @@ lazy_static! {
             .expect("DIFFERENCE_ACCOUNT_CURRENCY_REGEX should be valid");
 }
 
-pub fn format_adjustment_payee_name(currency: CurrencyCode) -> String {
-    format!("Exchange Rate Adjustment <{}>", currency)
+pub fn format_adjustment_payee_name(key: DifferenceKey) -> String {
+    format!(
+        "Exchange Rate Adjustment <{}{}>",
+        key.currency,
+        if key.is_tracking { " TRACKING" } else { "" }
+    )
 }

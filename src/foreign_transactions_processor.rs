@@ -465,8 +465,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 // We skip creating adjustments until the magnitide is at least the smallest unit
                 // of the local currency, to avoid tiny transactions.
                 if difference_adjustment_amount.abs() >= smallest_unit_in_local_currency {
-                    let adjustment_payee_name =
-                        format_adjustment_payee_name(difference_key.currency);
+                    let adjustment_payee_name = format_adjustment_payee_name(difference_key);
                     let adjustment_memo = format!(
                         "{}{}",
                         ADJUSTMENT_MEMO_PREFIX,
