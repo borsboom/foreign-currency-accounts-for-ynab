@@ -55,7 +55,7 @@ struct ForeignCommonData {
 #[derive(Debug)]
 struct ForeignTransactionData<'a> {
     ynab_transaction_id: &'a YnabTransactionId<'a>,
-    payee_id: &'a Option<String>,
+    payee_id: Option<&'a String>,
     payee_name: Option<&'a str>,
     transfer_account_id: &'a Option<YnabAccountId<'a>>,
     category_id: &'a Option<String>,
@@ -203,7 +203,13 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     &common_data,
                     &ForeignTransactionData {
                         ynab_transaction_id: &YnabTransactionId::new(&subtransaction.id),
-                        payee_id: &subtransaction.payee_id,
+                        payee_id: {
+                            #[allow(clippy::or_fun_call)]
+                            subtransaction
+                                .payee_id
+                                .as_ref()
+                                .or(parent_transaction.payee_id.as_ref())
+                        },
                         payee_name: None,
                         category_id: &subtransaction.category_id,
                         category_name: None,
@@ -227,7 +233,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 &common_data,
                 &ForeignTransactionData {
                     ynab_transaction_id: &parent_transaction_id,
-                    payee_id: &parent_transaction.payee_id,
+                    payee_id: parent_transaction.payee_id.as_ref(),
                     payee_name: parent_transaction.payee_name.as_ref().map(|s| s.as_str()),
                     transfer_account_id: &parent_transaction
                         .transfer_account_id
@@ -369,7 +375,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         account_id: difference_account_id.to_string(),
                         date: format_iso_date(common_data.transaction_date),
                         amount: difference_amount.to_scaled_i64(),
-                        payee_id: foreign_data.payee_id.clone(),
+                        payee_id: foreign_data.payee_id.cloned(),
                         payee_name: None,
                         category_id: foreign_data.category_id.clone(),
                         memo: Some(difference_memo),
@@ -407,7 +413,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         account_id: difference_account_id.to_string(),
                         date: format_iso_date(common_data.transaction_date),
                         amount: difference_amount.to_scaled_i64(),
-                        payee_id: foreign_data.payee_id.clone(),
+                        payee_id: foreign_data.payee_id.cloned(),
                         payee_name: None,
                         category_id: foreign_data.category_id.clone(),
                         memo: Some(difference_memo),
