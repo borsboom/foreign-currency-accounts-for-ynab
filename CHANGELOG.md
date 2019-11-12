@@ -1,6 +1,14 @@
 # Change log
 
 
+## 0.1.5
+
+Changes since 0.1.4:
+- Include tracking account indicator in adjustments payee name.
+- If a split transaction's payee is blank, use the parent's payee for the
+  difference transaction.
+
+
 ## 0.1.4
 
 Changes since 0.1.3:
