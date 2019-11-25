@@ -109,6 +109,27 @@ impl Milliunits {
         )
     }
 
+    pub fn round_bankers(self, currency_decimal_digits: u32) -> Milliunits {
+        self.round_dp_with_strategy(currency_decimal_digits, RoundingStrategy::BankersRounding)
+    }
+
+    fn round_dp_with_strategy(
+        self,
+        currency_decimal_digits: u32,
+        strategy: RoundingStrategy,
+    ) -> Milliunits {
+        assert!(
+            currency_decimal_digits <= Self::SCALE,
+            "Decimal points may not be greater than scale {}",
+            Self::SCALE
+        );
+        Milliunits::from_decimal(
+            self.to_decimal()
+                .round_dp_with_strategy(currency_decimal_digits, strategy),
+        )
+    }
+
+    /* UNUSED FUNCTIONS
     pub fn abs(&self) -> Milliunits {
         let result = Milliunits(self.0.abs());
         assert_eq!(result.0.scale(), Self::SCALE);
@@ -125,6 +146,11 @@ impl Milliunits {
             Decimal::new(1, 0) / Decimal::new(10i64.pow(currency_decimal_digits), 0),
         )
     }
+
+    pub fn round_half_up(self, currency_decimal_digits: u32) -> Milliunits {
+        self.round_dp_with_strategy(currency_decimal_digits, RoundingStrategy::RoundHalfUp)
+    }
+    */
 }
 
 impl ops::Add for Milliunits {
@@ -292,23 +318,6 @@ mod tests {
     }
 
     #[test]
-    fn test_milliunits_smallest_unit() {
-        assert_eq!(
-            Milliunits::smallest_unit(0),
-            Milliunits::from_scaled_i64(1000)
-        );
-        assert_eq!(
-            Milliunits::smallest_unit(1),
-            Milliunits::from_scaled_i64(100)
-        );
-        assert_eq!(
-            Milliunits::smallest_unit(2),
-            Milliunits::from_scaled_i64(10)
-        );
-        assert_eq!(Milliunits::smallest_unit(3), Milliunits::from_scaled_i64(1));
-    }
-
-    #[test]
     fn test_exchange_rate_from_to_scaled_i64() {
         assert_eq!(
             ExchangeRate::from_scaled_i64(12_345_678).to_scaled_i64(),
@@ -327,4 +336,23 @@ mod tests {
             ExchangeRate::from_scaled_i64(12_345_679)
         );
     }
+
+    /* UNUSED FUNCTIONS
+    #[test]
+    fn test_milliunits_smallest_unit() {
+        assert_eq!(
+            Milliunits::smallest_unit(0),
+            Milliunits::from_scaled_i64(1000)
+        );
+        assert_eq!(
+            Milliunits::smallest_unit(1),
+            Milliunits::from_scaled_i64(100)
+        );
+        assert_eq!(
+            Milliunits::smallest_unit(2),
+            Milliunits::from_scaled_i64(10)
+        );
+        assert_eq!(Milliunits::smallest_unit(3), Milliunits::from_scaled_i64(1));
+    }
+    */
 }
