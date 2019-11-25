@@ -163,9 +163,9 @@ account in that currency):
 3. In the **Add Account** dialog, enter:
    * **Account type:**: one of the **Budget** account types (such as
      **Cash**)
-   * **Nickname:** a "tag" with the three-letter currency code followed by a
-     space and `DIFFERENCE`, all in angle brackets (e.g. `<EUR DIFFERENCE>` for
-     Euros)
+   * **Nickname:** must contain a "tag" with the three-letter currency code
+     followed by a space and `DIFFERENCE`, all in angle brackets (e.g. `<EUR
+     DIFFERENCE>` for Euros)
    * **Current balance**: `0`
 4. Click **Next** and then **Done**.
 
@@ -174,7 +174,10 @@ account in that currency):
 If you have foreign currency **tracking** accounts, you must do also create a
 separate difference account for those (so that your worth in each is correct).
 Follow the same instructions as above, but choose a **Tracking** account type
-instead, such as **Asset (e.g. Investment)**.
+instead, such as **Asset (e.g. Investment)**.  You can add additional text to
+the nickname before or after the "tag" to differentiate it from the budget
+difference account, just make sure the extra text is outside the angle brackets
+(for example, `<EUR DIFFERENCE> Tracking`).
 
 Finally, create a budget category for foreign currency balance adjustments due
 to exchange rate fluctuations.  You can name this anything you want, for
