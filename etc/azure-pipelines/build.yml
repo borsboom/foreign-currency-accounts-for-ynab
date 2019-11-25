@@ -32,10 +32,11 @@ steps:
         startswith(variables['Build.SourceBranch'], 'refs/tags/release/'))
   displayName: Set release build version variable
 - bash: |
-    echo "##vso[task.setvariable variable=CI_BUILD_VERSION]$(Build.SourceBranchName).$(Build.BuildID)"
+    echo "##vso[task.setvariable variable=CI_BUILD_VERSION]$(echo $(Build.SourceBranchName)|tr - _).$(date +%Y%m%d).$(Build.BuildID)"
   condition: |
     and(succeeded(),
-        eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/')))
   displayName: Set master build version variable
 - bash: |
     echo "##vso[task.setvariable variable=PLATFORM_SUFFIX]$(uname -m)-$(uname -s|tr A-Z a-z|sed 's/_.*$//')"
@@ -56,6 +57,7 @@ steps:
   condition: |
     and(succeeded(),
         or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
            startswith(variables['Build.SourceBranch'], 'refs/tags/release/')),
         eq(variables['Agent.OS'], 'Linux'))
   displayName: Build release (Linux)
@@ -66,6 +68,7 @@ steps:
   condition: |
     and(succeeded(),
         or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
            startswith(variables['Build.SourceBranch'], 'refs/tags/release/')),
         ne(variables['Agent.OS'], 'Linux'))
   displayName: Build release (macOS/Windows)
@@ -80,6 +83,7 @@ steps:
   condition: |
     and(succeeded(),
         or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
            startswith(variables['Build.SourceBranch'], 'refs/tags/release/')))
   displayName: Publish artifacts
 
