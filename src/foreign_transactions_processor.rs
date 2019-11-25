@@ -90,17 +90,23 @@ impl<'a> ForeignTransactionsProcessor<'a> {
         let today_date = chrono::Local::today().naive_utc();
         let (initial_budget_state, budget_database) = database
             .get_or_create_budget(ynab_client.budget_id, start_date_arg.unwrap_or(today_date))?;
-        ensure!(
-            start_date_arg.is_none() || start_date_arg == Some(initial_budget_state.start_date),
-            format!(
-                "You may not specify a different --{} after the first run for a budget",
-                START_DATE_ARG
-            )
-        );
+        let get_transactions_start_date = match initial_budget_state.ynab_server_knowledge {
+            None => Some(initial_budget_state.start_date),
+            Some(_) => {
+                ensure!(
+                    start_date_arg.is_none(),
+                    format!(
+                        "You may not specify a --{} after the first run for a budget",
+                        START_DATE_ARG
+                    )
+                );
+                None
+            }
+        };
 
         println!("Loading latest transactions from YNAB...");
         let transactions_response_data = ynab_client.get_transactions(
-            Some(initial_budget_state.start_date),
+            get_transactions_start_date,
             initial_budget_state.ynab_server_knowledge,
         )?;
         debug!(

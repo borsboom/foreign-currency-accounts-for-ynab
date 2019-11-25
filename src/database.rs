@@ -114,15 +114,15 @@ impl Database {
     pub fn get_or_create_budget<'a>(
         &'a self,
         ynab_budget_id_: &'a str,
-        default_start_date: NaiveDate,
+        initial_start_date: NaiveDate,
     ) -> Result<(BudgetState, BudgetDatabase<'a>)> {
         if let Some(result) = self.get_budget(ynab_budget_id_)? {
             Ok(result)
         } else {
-            let budget_db = self.create_budget(ynab_budget_id_, default_start_date)?;
+            let budget_db = self.create_budget(ynab_budget_id_, initial_start_date)?;
             Ok((
                 BudgetState {
-                    start_date: default_start_date,
+                    start_date: initial_start_date,
                     ynab_server_knowledge: None,
                     last_run_date: None,
                 },
