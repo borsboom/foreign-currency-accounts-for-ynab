@@ -302,7 +302,9 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 common_data.transaction_date,
             )?;
             (
-                foreign_data.amount.convert_currency(exchange_rate) - foreign_data.amount,
+                self.round_to_budget_decimal_digits(
+                    foreign_data.amount.convert_currency(exchange_rate) - foreign_data.amount,
+                ),
                 format!(
                     "<{}>{}{}",
                     self.format_exchange(
@@ -459,18 +461,15 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             {
                 let exchange_rate = self
                     .get_transaction_date_exchange_rate(difference_key.currency, self.today_date)?;
-                let expected_difference_account_balance = foreign_total_and_difference_balance
-                    .foreign_accounts_total
-                    .convert_currency(exchange_rate)
-                    - foreign_total_and_difference_balance.foreign_accounts_total;
+                let expected_difference_account_balance = self.round_to_budget_decimal_digits(
+                    foreign_total_and_difference_balance
+                        .foreign_accounts_total
+                        .convert_currency(exchange_rate)
+                        - foreign_total_and_difference_balance.foreign_accounts_total,
+                );
                 let difference_adjustment_amount = expected_difference_account_balance
                     - foreign_total_and_difference_balance.difference_account_balance;
-                let smallest_unit_in_local_currency = Milliunits::smallest_unit(
-                    self.budget_settings.currency_format.decimal_digits as u32,
-                );
-                // We skip creating adjustments until the magnitide is at least the smallest unit
-                // of the local currency, to avoid tiny transactions.
-                if difference_adjustment_amount.abs() >= smallest_unit_in_local_currency {
+                if difference_adjustment_amount != Milliunits::zero() {
                     let adjustment_payee_name = format_adjustment_payee_name(difference_key);
                     let adjustment_memo = format!(
                         "{}{}",
@@ -673,6 +672,10 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             self.budget_formatter
                 .format_milliunits(amount.convert_currency(exchange_rate)),
         )
+    }
+
+    fn round_to_budget_decimal_digits(&self, amount: Milliunits) -> Milliunits {
+        amount.round_bankers(self.budget_settings.currency_format.decimal_digits as u32)
     }
 }
 
