@@ -6,6 +6,8 @@ use crate::types::*;
 pub const IMPORT_ID_PREFIX: &str = "FCAY";
 pub const ADJUSTMENT_MEMO_PREFIX: &str = "Exchange rate adjustment: ";
 pub const DEFAULT_DATABASE_FILENAME: &str = "data.sqlite3";
+pub const DEFAULT_CURRENCY_CONVERTER_API_BASE_URL: &str = "https://free.currconv.com";
+pub const DEFAULT_CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST: usize = 256;
 
 pub const YES_ARG: &str = "yes";
 pub const AUTO_APPROVE_TRANSACTIONS_ARG: &str = "auto-approve-transactions";
@@ -16,6 +18,12 @@ pub const YNAB_ACCESS_TOKEN_ARG: &str = "ynab-access-token";
 pub const YNAB_ACCESS_TOKEN_ENV: &str = "YNAB_ACCESS_TOKEN";
 pub const CURRENCY_CONVERTER_API_KEY_ARG: &str = "currency-converter-api-key";
 pub const CURRENCY_CONVERTER_API_KEY_ENV: &str = "CURRENCY_CONVERTER_API_KEY";
+pub const CURRENCY_CONVERTER_API_BASE_URL_ARG: &str = "currency-converter-base-url";
+pub const CURRENCY_CONVERTER_API_BASE_URL_ENV: &str = "CURRENCY_CONVERTER_API_BASE_URL";
+pub const CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST_ARG: &str =
+    "currency-converter-max-currency-pairs-per-request";
+pub const CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST_ENV: &str =
+    "CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST";
 pub const YNAB_BUDGET_ID_ARG: &str = "budget-id";
 pub const YNAB_BUDGET_ID_ENV: &str = "YNAB_BUDGET_ID";
 pub const START_DATE_ARG: &str = "start-date";

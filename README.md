@@ -36,6 +36,7 @@ trying a few other ways first).
     - [Deleted transactions](#deleted-transactions)
     - [Exchange rates](#exchange-rates)
     - [Making accounts look nicer](#making-accounts-look-nicer)
+    - [Use non-free Currency Converter API](#use-non-free-currency-converter-api)
   - [Development](#development)
     - [Build from source](#build-from-source)
 
@@ -146,7 +147,7 @@ each foreign currency account:
    account's nickname or notes.  For example, a U.S. Dollar account would have
    `<USD>`, and a Euro account would have `<EUR>`.  Here is [a list of the
    supported currencies and their three-letter
-   codes](https://free.currconv.com/api/v7/currencies?apiKey=sample-key-do-not-use).
+   codes](https://free.currconv.com/api/v7/currencies?apiKey=do-not-use-this-key).
 3. Click **Save**.
 
    <img src="doc/images/account_currency_tag_screenshot.png" alt="[account currency tag screenshot]" width="392">
@@ -365,7 +366,7 @@ prefer them to be auto-approved.  You can use the
 `--auto-approve-transactions=true` and/or `--auto-approve-adjustments=true`
 arguments (or corresponding environment variables) to do so.
 
-For other options, run `fca4ynab --help`.
+To see additional options, run `fca4ynab --help`.
 
 ### Save budget ID and API keys configuration
 
@@ -467,6 +468,24 @@ take a lot of screen real estate, so I like to put them in the account notes
 instead and then put the emoji flag of the currency's country in the account
 nickname.  For example, my Royal Bank of Canada chequing account has the
 nickname "**🇨🇦RBC Chequing**," and has `<CAD>` in the account notes instead.
+
+### Use non-free Currency Converter API
+
+By default, this tool uses the free Currency Converter API.  While this
+generally works fine, it can sometimes be unreliable and has occasional
+multi-day downtimes.  If you prefer to use premium, prepaid, or dedicated
+Currency Converter API servers, you can [register an
+app](https://www.currencyconverterapi.com/dev/register-app) and then use the
+`--currency-converter-base-url` argument (or corresponding environment
+variable) to change the API base URL:
+
+* Premium: `https://api.currconv.com`
+* Prepaid: `https://prepaid.currconv.com`
+* Dedicated: `https://<CUSTOM>.currconv.com` (where `<CUSTOM>` is the custom value for your dedicated server).
+
+You should also set the `--currency-converter-max-currency-pairs-per-request`
+argument (or corresponding environment variable) to the number you provisioned
+when you registered your app.
 
 ## Development
 
