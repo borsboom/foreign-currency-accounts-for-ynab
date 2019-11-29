@@ -213,7 +213,9 @@ for different currencies if you wish.
    | Windows (64-bit)   | [fca4ynab-0.1.7-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.7/fca4ynab-0.1.7-x86_64-mingw64.exe) |
 
    If your platform isn't listed, you can [build from
-   source](#build-from-source).
+   source](#build-from-source).  You can see changes and download previous
+   versions from the [Github releases
+   page](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases).
 
 5. On Linux and macOS, give the downloaded file execute permissions:
 
