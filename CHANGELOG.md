@@ -1,13 +1,20 @@
 # Change log
 
 
+## 0.1.7
+
+Changes since 0.1.6:
+- Support using non-free Currency Converter API by specifying base URL and
+  maximum currency pairs per request
+  ([#1](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/1)).
+
 ## 0.1.6
 
 Changes since 0.1.5:
 - Only use start date when downloading initial run transactions (fixes
-  [#7](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/7))
+  [#7](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/7)).
 - Round difference transactions to budget's decimal digits (fixes
-  [#8](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/8))
+  [#8](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/8)).
 
 
 ## 0.1.5

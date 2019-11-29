@@ -208,9 +208,9 @@ for different currencies if you wish.
 
    | Platform           | Download link |
    |--------------------|---------------|
-   | Linux (x86 64-bit) | [fca4ynab-0.1.6-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.6/fca4ynab-0.1.6-x86_64-linux) |
-   | macOS              | [fca4ynab-0.1.6-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.6/fca4ynab-0.1.6-x86_64-darwin) |
-   | Windows (64-bit)   | [fca4ynab-0.1.6-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.6/fca4ynab-0.1.6-x86_64-mingw64.exe) |
+   | Linux (x86 64-bit) | [fca4ynab-0.1.7-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.7/fca4ynab-0.1.7-x86_64-linux) |
+   | macOS              | [fca4ynab-0.1.7-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.7/fca4ynab-0.1.7-x86_64-darwin) |
+   | Windows (64-bit)   | [fca4ynab-0.1.7-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.7/fca4ynab-0.1.7-x86_64-mingw64.exe) |
 
    If your platform isn't listed, you can [build from
    source](#build-from-source).
@@ -218,7 +218,7 @@ for different currencies if you wish.
 5. On Linux and macOS, give the downloaded file execute permissions:
 
    ```
-   $ chmod a+x /path/to/fca4ynab-0.1.6-*
+   $ chmod a+x /path/to/fca4ynab-0.1.7-*
    ```
 
 6. Rename the binary to `fca4ynab` (`fca4ynab.exe` on Windows) and move it
@@ -492,5 +492,5 @@ when you registered your app.
 ### Build from source
 
 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
-2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.6.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.6.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.6).
+2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.7.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.7.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.7).
 3. In the root of the source tree, run `cargo install --path .`.
