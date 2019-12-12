@@ -77,6 +77,14 @@ struct TransactionModificationData<'a> {
     amount: Milliunits,
 }
 
+#[derive(Debug)]
+struct DifferenceTransactionData<'a> {
+    amount: Milliunits,
+    memo: String,
+    category_id: &'a Option<String>,
+    category_name: Option<&'a str>,
+}
+
 impl<'a> ForeignTransactionsProcessor<'a> {
     pub fn run(
         database: &'a Database,
@@ -284,7 +292,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             },
             None => false,
         };
-        let (difference_amount, difference_memo) = if foreign_data.deleted
+        let difference_data = if foreign_data.deleted
             || force_no_convert
             || (foreign_data.transfer_account_id.is_some()
                 && !convert_transfer_account
@@ -295,23 +303,25 @@ impl<'a> ForeignTransactionsProcessor<'a> {
         {
             // The YNAB API does not support deleting a transaction, so instead
             // we update the difference transaction to a zero amount.
-            (
-                Milliunits::zero(),
-                format!(
+            DifferenceTransactionData {
+                amount: Milliunits::zero(),
+                memo: format!(
                     "<DELETED>{}{}",
                     foreign_data.difference_memo_prefix, difference_memo_suffix
                 ),
-            )
+                category_id: &None,
+                category_name: None,
+            }
         } else if let Some(difference_key) = common_data.difference_key {
             let exchange_rate = self.get_transaction_date_exchange_rate(
                 difference_key.currency,
                 common_data.transaction_date,
             )?;
-            (
-                self.round_to_budget_decimal_digits(
+            DifferenceTransactionData {
+                amount: self.round_to_budget_decimal_digits(
                     foreign_data.amount.convert_currency(exchange_rate) - foreign_data.amount,
                 ),
-                format!(
+                memo: format!(
                     "<{}>{}{}",
                     self.format_exchange(
                         difference_key.currency,
@@ -321,15 +331,19 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     foreign_data.difference_memo_prefix,
                     difference_memo_suffix
                 ),
-            )
+                category_id: foreign_data.category_id,
+                category_name: foreign_data.category_name,
+            }
         } else {
-            (
-                Milliunits::zero(),
-                format!(
+            DifferenceTransactionData {
+                amount: Milliunits::zero(),
+                memo: format!(
                     "<MOVED TO LOCAL CURRENCY ACCOUNT>{}{}",
                     foreign_data.difference_memo_prefix, difference_memo_suffix
                 ),
-            )
+                category_id: &None,
+                category_name: None,
+            }
         };
         let opt_existing_difference_transaction = self
             .budget_database
@@ -373,20 +387,20 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     difference_key,
                     date: common_data.transaction_date,
                     payee_name: foreign_data.payee_name,
-                    category_name: foreign_data.category_name,
-                    memo: &difference_memo,
-                    amount: difference_amount,
+                    category_name: difference_data.category_name,
+                    memo: &difference_data.memo,
+                    amount: difference_data.amount,
                 });
                 transactions_modifications.update_transactions.push(
                     ynab_api::models::UpdateTransaction {
                         id: difference_transaction.difference_transaction_id.to_string(),
                         account_id: difference_account_id.to_string(),
                         date: format_iso_date(common_data.transaction_date),
-                        amount: difference_amount.to_scaled_i64(),
+                        amount: difference_data.amount.to_scaled_i64(),
                         payee_id: foreign_data.payee_id.cloned(),
                         payee_name: None,
-                        category_id: foreign_data.category_id.clone(),
-                        memo: Some(difference_memo),
+                        category_id: difference_data.category_id.clone(),
+                        memo: Some(difference_data.memo),
                         cleared: Some(transaction_detail_cleared_to_update_transaction(
                             common_data.transaction_cleared,
                         )),
@@ -397,7 +411,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         import_id: None,
                     },
                 );
-            } else if !difference_amount.is_zero() {
+            } else if !difference_data.amount.is_zero() {
                 let difference_import_id = self.import_id_generator.next_import_id();
                 transactions_modifications
                     .create_import_ids_foreign_ynab_transaction_ids
@@ -412,19 +426,19 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     difference_key,
                     date: common_data.transaction_date,
                     payee_name: foreign_data.payee_name,
-                    category_name: foreign_data.category_name,
-                    memo: &difference_memo,
-                    amount: difference_amount,
+                    category_name: difference_data.category_name,
+                    memo: &difference_data.memo,
+                    amount: difference_data.amount,
                 });
                 transactions_modifications.create_transactions.push(
                     ynab_api::models::SaveTransaction {
                         account_id: difference_account_id.to_string(),
                         date: format_iso_date(common_data.transaction_date),
-                        amount: difference_amount.to_scaled_i64(),
+                        amount: difference_data.amount.to_scaled_i64(),
                         payee_id: foreign_data.payee_id.cloned(),
                         payee_name: None,
-                        category_id: foreign_data.category_id.clone(),
-                        memo: Some(difference_memo),
+                        category_id: difference_data.category_id.clone(),
+                        memo: Some(difference_data.memo),
                         cleared: Some(transaction_detail_cleared_to_save_transaction(
                             common_data.transaction_cleared,
                         )),
@@ -443,10 +457,14 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         _ => None,
                     }
                 });
-            difference_balances.update(difference_key, transfer_difference_key, difference_amount);
+            difference_balances.update(
+                difference_key,
+                transfer_difference_key,
+                difference_data.amount,
+            );
         } else {
             assert!(
-                difference_amount.is_zero(),
+                difference_data.amount.is_zero(),
                 "difference_amount should be 0 if transaction has difference_key is None"
             );
         }
