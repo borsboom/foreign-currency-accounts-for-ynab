@@ -209,9 +209,13 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     .is_some(),
                 transaction_has_import_id: parent_transaction.import_id.is_some(),
             };
+            let mut has_nondeleted_subtransactions = false;
             for (subtransaction_index, subtransaction) in
                 parent_transaction.subtransactions.iter().enumerate()
             {
+                if !subtransaction.deleted {
+                    has_nondeleted_subtransactions = true;
+                }
                 self.process_parent_or_subtransaction(
                     &mut transactions_modifications,
                     &common_data,
@@ -263,8 +267,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     // If there are subtransactions, we create those in the
                     // difference account instead of the parent transaction, so
                     // we consider the parent "deleted."
-                    deleted: parent_transaction.deleted
-                        || !parent_transaction.subtransactions.is_empty(),
+                    deleted: parent_transaction.deleted || has_nondeleted_subtransactions,
                 },
             )?;
         }
