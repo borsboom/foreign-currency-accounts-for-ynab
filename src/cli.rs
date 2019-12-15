@@ -125,7 +125,7 @@ fn get_clap_matches() -> clap::ArgMatches<'static> {
             clap::Arg::with_name(START_DATE_ARG)
                 .long(START_DATE_ARG)
                 .value_name("YYYY-MM-DD")
-                .help("Transactions from this date will be processed.  Defaults to today's date.  May only be specified on first run for the budget.")
+                .help("Transactions from this date will be processed.  Defaults to today's date.  May only be set on first run for the budget.")
                 .takes_value(true)
                 .validator(|value| map_validator(parse_iso_date(&value))
                 ),
