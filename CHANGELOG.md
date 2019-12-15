@@ -1,12 +1,22 @@
 # Change log
 
 
+## 0.1.8
+
+Changes since 0.1.7
+- Fix behavior when changing an un-split transaction to a split, and vice-versa
+  (fixes
+  [#12](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/12))
+- Default start date to 30 days ago (fixes [#7](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/7)).
+- Always use start date when downloading latest transaction (reverts change from 0.1.6).
+
 ## 0.1.7
 
 Changes since 0.1.6:
 - Support using non-free Currency Converter API by specifying base URL and
   maximum currency pairs per request
   ([#1](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/1)).
+
 
 ## 0.1.6
 
