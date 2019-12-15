@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{Duration, NaiveDate};
 use log::debug;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -96,8 +96,10 @@ impl<'a> ForeignTransactionsProcessor<'a> {
         auto_approve_adjustments: bool,
     ) -> Result<()> {
         let today_date = chrono::Local::today().naive_utc();
-        let (initial_budget_state, budget_database) = database
-            .get_or_create_budget(ynab_client.budget_id, start_date_arg.unwrap_or(today_date))?;
+        let (initial_budget_state, budget_database) = database.get_or_create_budget(
+            ynab_client.budget_id,
+            start_date_arg.unwrap_or(today_date - Duration::days(30)),
+        )?;
         ensure!(
             start_date_arg.is_none() || start_date_arg == Some(initial_budget_state.start_date),
             format!(

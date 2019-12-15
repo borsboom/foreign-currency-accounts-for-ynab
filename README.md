@@ -242,10 +242,10 @@ This will output which foreign currency accounts were detected, and show you
 any transactions that will be created, but will _not actually make any
 changes_.
 
-By default, this tool will only process transactions starting from the date you
-first ran the tool.  If you prefer a different start date, use the
-`--start-date=<YYYY-MM-DD>` argument to override it.  Note that you can only
-set this the first time you run the tool for a given budget.
+By default, this tool will only process transactions starting from thirty days
+prior to the date you first ran the tool.  If you prefer a different start
+date, use the `--start-date=<YYYY-MM-DD>` argument to override it.  Note that
+you can only set this the first time you run the tool for a given budget.
 
 If you are happy with the plan, re-run it with the `--yes` argument to actually
 create the difference and adjustment transactions.
