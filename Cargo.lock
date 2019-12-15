@@ -376,7 +376,7 @@ dependencies = [
  "reqwest 0.9.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "rust_decimal 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.41 (registry+https://github.com/rust-lang/crates.io-index)",
- "ynab-api 2.0.0 (git+https://github.com/borsboom/ynab-api.git?rev=5062953fd0c0ff709a434795572a654dd3d95cd0)",
+ "ynab-api 2.0.0 (git+https://github.com/borsboom/ynab-api.git?rev=b8b870e66c8c9de5cdd95debba3d06ca06f63a2f)",
 ]
 
 [[package]]
@@ -1716,7 +1716,7 @@ dependencies = [
 [[package]]
 name = "ynab-api"
 version = "2.0.0"
-source = "git+https://github.com/borsboom/ynab-api.git?rev=5062953fd0c0ff709a434795572a654dd3d95cd0#5062953fd0c0ff709a434795572a654dd3d95cd0"
+source = "git+https://github.com/borsboom/ynab-api.git?rev=b8b870e66c8c9de5cdd95debba3d06ca06f63a2f#b8b870e66c8c9de5cdd95debba3d06ca06f63a2f"
 dependencies = [
  "reqwest 0.9.20 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1920,4 +1920,4 @@ dependencies = [
 "checksum wincolor 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "96f5016b18804d24db43cebf3c77269e7569b8954a8464501c216cc5e070eaa9"
 "checksum winreg 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b2986deb581c4fe11b621998a5e53361efe6b48a151178d0cd9eeffa4dc6acc9"
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
-"checksum ynab-api 2.0.0 (git+https://github.com/borsboom/ynab-api.git?rev=5062953fd0c0ff709a434795572a654dd3d95cd0)" = "<none>"
+"checksum ynab-api 2.0.0 (git+https://github.com/borsboom/ynab-api.git?rev=b8b870e66c8c9de5cdd95debba3d06ca06f63a2f)" = "<none>"
