@@ -1,5 +1,5 @@
 use chrono::{Duration, NaiveDate};
-use log::debug;
+use log::{debug, warn};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
@@ -181,10 +181,12 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             }
         }
         for parent_transaction in latest_transactions {
+            debug!("Processing transaction: {:?}", parent_transaction);
             let parent_transaction_id = YnabTransactionId::new(parent_transaction.id);
+            let parent_transaction_account_id = YnabAccountId::new(parent_transaction.account_id);
             let difference_key = match self
                 .foreign_accounts
-                .get_account_data(&YnabAccountId::new(parent_transaction.account_id))
+                .get_account_data(&parent_transaction_account_id)
             {
                 Some(AccountData::Difference { .. }) => {
                     // Don't process transactions that are in difference accounts, since this tool created them.
@@ -192,7 +194,13 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 }
                 Some(AccountData::Foreign { difference_key }) => Some(*difference_key),
                 Some(AccountData::Local { .. }) => None,
-                None => bail!("Could not find account for transaction"),
+                None => {
+                    warn!(
+                        "Could not find open account {} for transaction {}",
+                        &parent_transaction_account_id, &parent_transaction_id
+                    );
+                    None
+                }
             };
             let common_data = ForeignCommonData {
                 difference_key,
