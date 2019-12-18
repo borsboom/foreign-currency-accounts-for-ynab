@@ -54,6 +54,7 @@ steps:
     done
     docker run --rm -v "$PWD:/home/rust/src" ekidd/rust-musl-builder:$(cat rust-toolchain) cargo build --release
     cp target/x86_64-unknown-linux-musl/release/fca4ynab "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"
+    strip "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"
   condition: |
     and(succeeded(),
         or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
@@ -65,6 +66,7 @@ steps:
     set -xeu -o pipefail
     cargo build --release
     cp target/release/fca4ynab "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"
+    strip "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"*
   condition: |
     and(succeeded(),
         or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
