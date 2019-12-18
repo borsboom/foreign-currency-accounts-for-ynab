@@ -1,12 +1,23 @@
 # Change log
 
 
+## 0.1.9
+
+Changes since 0.1.8:
+- Skip transactions in closed and deleted accounts instead of failing (fixes
+  [#19](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/19)).
+- Treat empty string flag_color from YNAB API same as null (fixes
+  [#17](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/17)).
+  This can happen if you use the Toolkit for YNAB extension to clear flags.
+- Clear flag in difference transaction when source transaction flag cleared.
+
+
 ## 0.1.8
 
 Changes since 0.1.7
 - Fix behavior when changing an un-split transaction to a split, and vice-versa
   (fixes
-  [#12](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/12))
+  [#12](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/12)).
 - Default start date to 30 days ago (fixes
   [#7](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/7)).
 - Always use start date when downloading latest transaction (reverts change
