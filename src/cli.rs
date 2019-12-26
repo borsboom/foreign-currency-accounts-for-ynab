@@ -1,9 +1,6 @@
 use log::debug;
-use std::env;
 use std::ffi::OsStr;
-use std::result;
-use std::str;
-use std::string;
+use std::{env, result, str, string};
 
 use crate::constants::*;
 use crate::currency_converter_client::*;

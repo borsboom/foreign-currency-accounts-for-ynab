@@ -45,9 +45,5 @@ lazy_static! {
 }
 
 pub fn format_adjustment_payee_name(key: DifferenceKey) -> String {
-    format!(
-        "Exchange Rate Adjustment <{}{}>",
-        key.currency,
-        if key.is_tracking { " TRACKING" } else { "" }
-    )
+    format!("Exchange Rate Adjustment <{}>", key.currency,)
 }
