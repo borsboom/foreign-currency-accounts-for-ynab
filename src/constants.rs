@@ -5,6 +5,7 @@ use crate::types::*;
 
 pub const IMPORT_ID_PREFIX: &str = "FCAY";
 pub const ADJUSTMENT_MEMO_PREFIX: &str = "Exchange rate adjustment: ";
+pub const DIFFERENCE_MEMO_TAG_PREFIX: &str = "CONVERT: ";
 pub const DEFAULT_DATABASE_FILENAME: &str = "data.sqlite3";
 pub const DEFAULT_CURRENCY_CONVERTER_API_BASE_URL: &str = "https://free.currconv.com";
 pub const DEFAULT_CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST: usize = 256;

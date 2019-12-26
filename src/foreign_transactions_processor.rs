@@ -62,7 +62,7 @@ struct ForeignTransactionData<'a> {
     category_name: Option<&'a str>,
     amount: Milliunits,
     memo: &'a Option<String>,
-    difference_memo_prefix: &'a str,
+    difference_memo_tag_suffix: &'a str,
     deleted: bool,
 }
 
@@ -241,7 +241,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                             .transfer_account_id
                             .clone()
                             .map(YnabAccountId::new),
-                        difference_memo_prefix: &format!(
+                        difference_memo_tag_suffix: &format!(
                             " (split {}/{})",
                             subtransaction_index + 1,
                             parent_transaction.subtransactions.len()
@@ -267,7 +267,7 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         .map(|s| s.as_str()),
                     amount: Milliunits::from_scaled_i64(parent_transaction.amount),
                     memo: &parent_transaction.memo,
-                    difference_memo_prefix: "",
+                    difference_memo_tag_suffix: "",
                     // If there are subtransactions, we create those in the
                     // difference account instead of the parent transaction, so
                     // we consider the parent "deleted."
@@ -313,8 +313,8 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             DifferenceTransactionData {
                 amount: Milliunits::zero(),
                 memo: format!(
-                    "<DELETED>{}{}",
-                    foreign_data.difference_memo_prefix, difference_memo_suffix
+                    "<{}DELETED{}>{}",
+                    DIFFERENCE_MEMO_TAG_PREFIX, foreign_data.difference_memo_tag_suffix, difference_memo_suffix
                 ),
                 category_id: &None,
                 category_name: None,
@@ -329,13 +329,14 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                     foreign_data.amount.convert_currency(exchange_rate) - foreign_data.amount,
                 ),
                 memo: format!(
-                    "<{}>{}{}",
+                    "<{}{}{}>{}",
+                    DIFFERENCE_MEMO_TAG_PREFIX,
                     self.format_exchange(
                         difference_key.currency,
                         foreign_data.amount,
                         exchange_rate
                     ),
-                    foreign_data.difference_memo_prefix,
+                    foreign_data.difference_memo_tag_suffix,
                     difference_memo_suffix
                 ),
                 category_id: foreign_data.category_id,
@@ -345,8 +346,9 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             DifferenceTransactionData {
                 amount: Milliunits::zero(),
                 memo: format!(
-                    "<MOVED TO LOCAL CURRENCY ACCOUNT>{}{}",
-                    foreign_data.difference_memo_prefix, difference_memo_suffix
+                    "<{}MOVED TO LOCAL CURRENCY ACCOUNT{}>{}",
+                    DIFFERENCE_MEMO_TAG_PREFIX,
+                    foreign_data.difference_memo_tag_suffix, difference_memo_suffix
                 ),
                 category_id: &None,
                 category_name: None,
