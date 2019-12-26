@@ -177,7 +177,7 @@ applies to the converted amounts too).  Follow the same instructions as above,
 but choose account type **Credit Card** instead.  You should add additional
 text to the nickname before or after the "tag" to differentiate it from the
 debit difference account, just make sure the extra text is outside the angle
-brackets (for example, ` Credit <EUR DIFFERENCE>`).
+brackets (for example, `Credit <EUR DIFFERENCE>`).
 
 If you have foreign currency **tracking** accounts, you must also create a
 separate difference account for those (so that your worth in each is correct).
