@@ -314,7 +314,9 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 amount: Milliunits::zero(),
                 memo: format!(
                     "<{}DELETED{}>{}",
-                    DIFFERENCE_MEMO_TAG_PREFIX, foreign_data.difference_memo_tag_suffix, difference_memo_suffix
+                    DIFFERENCE_MEMO_TAG_PREFIX,
+                    foreign_data.difference_memo_tag_suffix,
+                    difference_memo_suffix
                 ),
                 category_id: &None,
                 category_name: None,
@@ -348,7 +350,8 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                 memo: format!(
                     "<{}MOVED TO LOCAL CURRENCY ACCOUNT{}>{}",
                     DIFFERENCE_MEMO_TAG_PREFIX,
-                    foreign_data.difference_memo_tag_suffix, difference_memo_suffix
+                    foreign_data.difference_memo_tag_suffix,
+                    difference_memo_suffix
                 ),
                 category_id: &None,
                 category_name: None,

@@ -179,9 +179,26 @@ impl<'a> ForeignAccounts<'a> {
         };
         let currency = CurrencyCode::from_str(currency_code)
             .expect("Account name and note regex should capture a valid currency code");
-        let is_tracking = account._type == ynab_api::models::account::Type::OtherAsset
-            || account._type == ynab_api::models::account::Type::OtherLiability;
-        Ok(Some(DifferenceKey::new(currency, is_tracking)))
+        let class = match account._type {
+            ynab_api::models::account::Type::Checking => AccountClass::Debit,
+            ynab_api::models::account::Type::Savings => AccountClass::Debit,
+            ynab_api::models::account::Type::Cash => AccountClass::Debit,
+            ynab_api::models::account::Type::CreditCard => AccountClass::Credit,
+            ynab_api::models::account::Type::LineOfCredit => AccountClass::Credit,
+            ynab_api::models::account::Type::OtherAsset => AccountClass::Tracking,
+            ynab_api::models::account::Type::OtherLiability => AccountClass::Tracking,
+            ynab_api::models::account::Type::PayPal => bail!("Account type 'PayPal' is deprecated"),
+            ynab_api::models::account::Type::MerchantAccount => {
+                bail!("Account type 'MerchantAccount' is deprecated")
+            }
+            ynab_api::models::account::Type::InvestmentAccount => {
+                bail!("Account type 'InvestmentAccount' is deprecated")
+            }
+            ynab_api::models::account::Type::Mortgage => {
+                bail!("Account type 'Mortgage' is deprecated")
+            }
+        };
+        Ok(Some(DifferenceKey::new(currency, class)))
     }
 
     fn account_name_and_note_regex_capture<'b>(

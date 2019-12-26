@@ -16,9 +16,9 @@ table! {
         difference_ynab_transaction_id -> Text,
         difference_amount_milliunits -> BigInt,
         difference_currency_code -> Text,
-        difference_is_tracking -> Integer,
+        difference_account_class -> Text,
         transfer_currency_code -> Nullable<Text>,
-        transfer_is_tracking -> Nullable<Integer>,
+        transfer_account_class -> Nullable<Text>,
     }
 }
 

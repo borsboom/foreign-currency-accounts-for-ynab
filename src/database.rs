@@ -4,8 +4,7 @@ use chrono::{Datelike, NaiveDate};
 use diesel::prelude::*;
 use log::debug;
 use std::collections::{HashMap, HashSet};
-use std::fs;
-use std::path;
+use std::{fs, path};
 
 use crate::database::models::*;
 use crate::errors::*;
@@ -242,32 +241,34 @@ impl<'a> BudgetDatabase<'a> {
                 .select((difference_ynab_transaction_id,
                          difference_amount_milliunits,
                          difference_currency_code,
-                         difference_is_tracking,
+                         difference_account_class,
                          transfer_currency_code,
-                         transfer_is_tracking))
+                         transfer_account_class))
                 .filter(budget_id.eq(db_budget_id))
                 .filter(foreign_ynab_transaction_id.eq(&foreign_ynab_transaction_id_.raw))
-                .first::<(String, i64, String, i32, Option<String>, Option<i32>)>(self.connection)
+                .first::<(String, i64, String, String, Option<String>, Option<String>)>(self.connection)
                 .optional()
                 .map(|opt| {
                     opt.map(|(difference_transaction_id,
                               amount,
                               difference_currency_code_,
-                              difference_is_tracking_,
+                              difference_account_class_,
                               transfer_currency_code_,
-                              transfer_is_tracking_)| DifferenceTransaction {
+                              transfer_account_class_)| DifferenceTransaction {
                         difference_transaction_id: YnabTransactionId::new(difference_transaction_id),
                         amount: Milliunits::from_scaled_i64(amount),
                         difference_key: DifferenceKey {
                             currency: CurrencyCode::from_str(&difference_currency_code_)
                                 .expect("difference_transactions.difference_currency_code should be valid currency code"),
-                            is_tracking: difference_is_tracking_ != 0,
+                            account_class: account_class_from_str(&difference_account_class_)
+                                .expect("difference_transactions.difference_account_class should be valid character"),
                         },
                         transfer_key: transfer_currency_code_.map(|code| DifferenceKey {
                             currency: CurrencyCode::from_str(&code)
                                 .expect("difference_transactions.transfer_currency_code should be valid currency code"),
-                            is_tracking: transfer_is_tracking_
-                                .expect("transfer_is_tracking should not be null when transfer_currency_code is non-null") != 0,
+                            account_class: account_class_from_str(&transfer_account_class_
+                                .expect("difference_transactions.transfer_account_class should not be null when transfer_currency_code is non-null"))
+                                .expect("difference_transactions.transfer_account_class should be a valid character"),
                         }),
                     })
                 })
@@ -324,17 +325,18 @@ impl<'a> BudgetDatabase<'a> {
                         .eq(&transaction.inner.difference_transaction_id.raw),
                     difference_amount_milliunits.eq(transaction.inner.amount.to_scaled_i64()),
                     difference_currency_code.eq(transaction.inner.difference_key.currency.to_str()),
-                    difference_is_tracking
-                        .eq(bool_to_int(transaction.inner.difference_key.is_tracking)),
+                    difference_account_class.eq(account_class_to_str(
+                        transaction.inner.difference_key.account_class,
+                    )),
                     transfer_currency_code.eq(transaction
                         .inner
                         .transfer_key
                         .as_ref()
                         .map(|k| k.currency.to_str())),
-                    transfer_is_tracking.eq(transaction
+                    transfer_account_class.eq(transaction
                         .inner
                         .transfer_key
-                        .map(|k| bool_to_int(k.is_tracking))),
+                        .map(|k| account_class_to_str(k.account_class))),
                 ))
                 .execute(self.connection)?;
         }
@@ -356,13 +358,16 @@ impl<'a> BudgetDatabase<'a> {
                 .set((
                     difference_amount_milliunits.eq(transaction.amount.to_scaled_i64()),
                     difference_currency_code.eq(transaction.difference_key.currency.to_str()),
-                    difference_is_tracking.eq(bool_to_int(transaction.difference_key.is_tracking)),
+                    difference_account_class.eq(account_class_to_str(
+                        transaction.difference_key.account_class,
+                    )),
                     transfer_currency_code.eq(transaction
                         .transfer_key
                         .as_ref()
                         .map(|k| k.currency.to_str())),
-                    transfer_is_tracking
-                        .eq(transaction.transfer_key.map(|k| bool_to_int(k.is_tracking))),
+                    transfer_account_class.eq(transaction
+                        .transfer_key
+                        .map(|k| account_class_to_str(k.account_class))),
                 ))
                 .execute(self.connection)?;
         }
@@ -386,10 +391,19 @@ impl BudgetRunState {
     }
 }
 
-fn bool_to_int(value: bool) -> i32 {
-    if value {
-        1
-    } else {
-        0
+fn account_class_to_str(value: AccountClass) -> &'static str {
+    match value {
+        AccountClass::Debit => "D",
+        AccountClass::Credit => "C",
+        AccountClass::Tracking => "T",
+    }
+}
+
+fn account_class_from_str(value: &str) -> Option<AccountClass> {
+    match value {
+        "D" => Some(AccountClass::Debit),
+        "C" => Some(AccountClass::Credit),
+        "T" => Some(AccountClass::Tracking),
+        _ => None,
     }
 }

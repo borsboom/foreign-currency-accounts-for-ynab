@@ -1,8 +1,7 @@
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::borrow::Cow;
-use std::fmt;
-use std::ops;
+use std::{fmt, ops};
 
 use crate::errors::*;
 
@@ -35,7 +34,14 @@ pub struct YnabAccountId<'a> {
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DifferenceKey {
     pub currency: CurrencyCode,
-    pub is_tracking: bool,
+    pub account_class: AccountClass,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum AccountClass {
+    Debit,
+    Credit,
+    Tracking,
 }
 
 impl CurrencyCode {
@@ -276,25 +282,30 @@ impl<'a> fmt::Display for YnabAccountId<'a> {
 }
 
 impl DifferenceKey {
-    pub fn new(currency: CurrencyCode, is_tracking: bool) -> DifferenceKey {
+    pub fn new(currency: CurrencyCode, account_class: AccountClass) -> DifferenceKey {
         DifferenceKey {
             currency,
-            is_tracking,
+            account_class,
         }
     }
 }
 
 impl fmt::Display for DifferenceKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} account for {}", self.account_class, self.currency,)
+    }
+}
+
+impl fmt::Display for AccountClass {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{} account for {}",
-            if self.is_tracking {
-                "tracking"
-            } else {
-                "budget"
-            },
-            self.currency
+            "{}",
+            match self {
+                AccountClass::Debit => "debit",
+                AccountClass::Credit => "credit",
+                AccountClass::Tracking => "tracking",
+            }
         )
     }
 }

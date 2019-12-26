@@ -162,8 +162,7 @@ account in that currency):
 1. Click the **Add Account** button
 2. Choose **Unlinked**
 3. In the **Add Account** dialog, enter:
-   * **Account type:**: one of the **Budget** account types (such as
-     **Cash**)
+   * **Account type:**: **Checking**
    * **Nickname:** must contain a "tag" with the three-letter currency code
      followed by a space and `DIFFERENCE`, all in angle brackets (e.g. `<EUR
      DIFFERENCE>` for Euros)
@@ -172,13 +171,21 @@ account in that currency):
 
    <img src="doc/images/add_budget_account_screenshot.png" alt="[add budget account screenshot]" width="477">
 
-If you have foreign currency **tracking** accounts, you must do also create a
+If you have foreign currency **credit** accounts, you must also create a
+separate difference account for those (so that YNAB's special credit handling
+applies to the converted amounts too).  Follow the same instructions as above,
+but choose account type **Credit Card** instead.  You should add additional
+text to the nickname before or after the "tag" to differentiate it from the
+debit difference account, just make sure the extra text is outside the angle
+brackets (for example, `<EUR DIFFERENCE> Credit`).
+
+If you have foreign currency **tracking** accounts, you must also create a
 separate difference account for those (so that your worth in each is correct).
-Follow the same instructions as above, but choose a **Tracking** account type
-instead, such as **Asset (e.g. Investment)**.  You can add additional text to
-the nickname before or after the "tag" to differentiate it from the budget
-difference account, just make sure the extra text is outside the angle brackets
-(for example, `<EUR DIFFERENCE> Tracking`).
+Follow the same instructions as above, but choose account type **Asset (e.g.
+Investment)** instead.  You can should additional text to the nickname before
+or after the "tag" to differentiate it from the budget difference account, just
+make sure the extra text is outside the angle brackets (for example, `<EUR
+DIFFERENCE> Tracking`).
 
 Finally, create a budget category for foreign currency balance adjustments due
 to exchange rate fluctuations.  You can name this anything you want, for
