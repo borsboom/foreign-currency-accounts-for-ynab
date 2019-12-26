@@ -1,6 +1,24 @@
 # Change log
 
 
+## 0.1.10
+
+**BREAKING CHANGE:** If you have foreign currency **credit** accounts, you must
+now create a separate difference account for those (so that YNAB's special
+credit handling applies to the converted amounts too).  Follow the same
+instructions as for a regular (debit) account, but choose account type **Credit
+Card** instead.  You should add additional text to the nickname before or after
+the "tag" to differentiate it from the debit difference account, just make sure
+the extra text is outside the angle brackets (for example, `Credit <EUR
+DIFFERENCE>`).
+
+Changes since 0.1.9:
+- Use separate difference accounts for credit accounts (fixes
+  [#13](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/13))
+- Set more consistent difference transaction memo prefixes.  Now they all start
+  with `<CONVERT: …>`.
+
+
 ## 0.1.9
 
 Changes since 0.1.8:

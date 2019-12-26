@@ -177,15 +177,15 @@ applies to the converted amounts too).  Follow the same instructions as above,
 but choose account type **Credit Card** instead.  You should add additional
 text to the nickname before or after the "tag" to differentiate it from the
 debit difference account, just make sure the extra text is outside the angle
-brackets (for example, `<EUR DIFFERENCE> Credit`).
+brackets (for example, ` Credit <EUR DIFFERENCE>`).
 
 If you have foreign currency **tracking** accounts, you must also create a
 separate difference account for those (so that your worth in each is correct).
 Follow the same instructions as above, but choose account type **Asset (e.g.
 Investment)** instead.  You can should additional text to the nickname before
 or after the "tag" to differentiate it from the budget difference account, just
-make sure the extra text is outside the angle brackets (for example, `<EUR
-DIFFERENCE> Tracking`).
+make sure the extra text is outside the angle brackets (for example, `Tracking <EUR
+DIFFERENCE>`).
 
 Finally, create a budget category for foreign currency balance adjustments due
 to exchange rate fluctuations.  You can name this anything you want, for
@@ -215,9 +215,9 @@ for different currencies if you wish.
 
    | Platform           | Download link |
    |--------------------|---------------|
-   | Linux (x86 64-bit) | [fca4ynab-0.1.9-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.9/fca4ynab-0.1.9-x86_64-linux) |
-   | macOS              | [fca4ynab-0.1.9-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.9/fca4ynab-0.1.9-x86_64-darwin) |
-   | Windows (64-bit)   | [fca4ynab-0.1.9-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.9/fca4ynab-0.1.9-x86_64-mingw64.exe) |
+   | Linux (x86 64-bit) | [fca4ynab-0.1.10-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-linux) |
+   | macOS              | [fca4ynab-0.1.10-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-darwin) |
+   | Windows (64-bit)   | [fca4ynab-0.1.10-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-mingw64.exe) |
 
    If your platform isn't listed, you can [build from
    source](#build-from-source).  You can see changes and download previous
@@ -227,7 +227,7 @@ for different currencies if you wish.
 5. On Linux and macOS, give the downloaded file execute permissions:
 
    ```
-   $ chmod a+x /path/to/fca4ynab-0.1.9-*
+   $ chmod a+x /path/to/fca4ynab-0.1.10-*
    ```
 
 6. Rename the binary to `fca4ynab` (`fca4ynab.exe` on Windows) and move it
@@ -500,5 +500,5 @@ when you registered your app.
 ### Build from source
 
 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
-2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.9.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.9.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.9).
+2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.10).
 3. In the root of the source tree, run `cargo install --path .`.
