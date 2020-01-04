@@ -120,7 +120,7 @@ the Euro difference account would hold $10.00, since
   rate adjustment buffer category, I guess.  But you're probably best off
   immediately spending any money on tangible goods or converting it to
   something that holds value, since otherwise all the value will just inflate
-  away away.
+  away anyway.
 
 
 ## How to use
