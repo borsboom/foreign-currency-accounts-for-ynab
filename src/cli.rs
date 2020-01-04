@@ -77,7 +77,7 @@ fn get_clap_matches() -> clap::ArgMatches<'static> {
             clap::Arg::with_name(YNAB_ACCESS_TOKEN_ARG)
                 .env(YNAB_ACCESS_TOKEN_ENV)
                 .long(YNAB_ACCESS_TOKEN_ARG)
-                .value_name("KEY")
+                .value_name("TOKEN")
                 .help("YNAB personal access token (see documentation for setup)")
                 .takes_value(true)
                 .required(true),
