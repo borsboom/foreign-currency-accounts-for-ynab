@@ -23,7 +23,7 @@ trying a few other ways first).
   - [How to use](#how-to-use)
     - [Budget setup](#budget-setup)
     - [Tool setup](#tool-setup)
-    - [First run](#first-run)
+    - [Run the tool](#run-the-tool)
     - [Set budget category for exchange rate fluctuations](#set-budget-category-for-exchange-rate-fluctuations)
     - [Transfers between currencies](#transfers-between-currencies)
     - [Forcing or preventing automatic conversions](#forcing-or-preventing-automatic-conversions)
@@ -38,7 +38,7 @@ trying a few other ways first).
     - [Making accounts look nicer](#making-accounts-look-nicer)
     - [Use non-free Currency Converter API](#use-non-free-currency-converter-api)
   - [Development](#development)
-    - [Build from source](#build-from-source)
+    - [Build from source code](#build-from-source-code)
 
 ## Overview
 
@@ -196,22 +196,7 @@ for different currencies if you wish.
 
 ### Tool setup
 
-1. Generate a YNAB Personal Access Token by following [these
-   instructions](https://api.youneedabudget.com/#personal-access-tokens).
-
-2. Get a free Currency Converter API token by clicking the **Get Your Free API
-   Key** button [on this page](https://free.currencyconverterapi.com/).
-
-3. Determine your budget's ID.  You can get this by opening your budget in YNAB
-   and then looking at the URL in the location bar.  The budget ID is the
-   string of random letters, numbers, and dashes that comes between
-   `app.youneedabudget.com/` and `/budget` (e.g. if the URL is
-   `https://app.youneedabudget.com/5bcbe6cb-0a20-41dd-bf4d-c8ab34dd99d4/budget`
-   then the budget ID is `5bcbe6cb-0a20-41dd-bf4d-c8ab34dd99d4`).
-
-   <img src="doc/images/budget_id_screenshot.png" alt="[budget ID screenshot]" width="560">
-
-4. Download the appropriate binary executable for your platform:
+1. Download the appropriate binary executable for your platform:
 
    | Platform           | Download link |
    |--------------------|---------------|
@@ -224,19 +209,37 @@ for different currencies if you wish.
    versions from the [Github releases
    page](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases).
 
-5. On Linux and macOS, give the downloaded file execute permissions:
+2. On Linux and macOS, give the downloaded file execute permissions:
 
    ```
    $ chmod a+x /path/to/fca4ynab-0.1.10-*
    ```
 
-6. Rename the binary to `fca4ynab` (`fca4ynab.exe` on Windows) and move it
+3. Rename the binary to `fca4ynab` (`fca4ynab.exe` on Windows) and move it
    somewhere in your system PATH, if desired.
 
-### First run
+4. Determine your budget's ID.  You can get this by opening your budget in YNAB
+   and then looking at the URL in the location bar.  The budget ID is the
+   string of random letters, numbers, and dashes that comes between
+   `app.youneedabudget.com/` and `/budget` (e.g. if the URL is
+   `https://app.youneedabudget.com/5bcbe6cb-0a20-41dd-bf4d-c8ab34dd99d4/budget`
+   then the budget ID is `5bcbe6cb-0a20-41dd-bf4d-c8ab34dd99d4`).  Make note of
+   the ID value for later.
+
+   <img src="doc/images/budget_id_screenshot.png" alt="[budget ID screenshot]" width="560">
+
+5. Generate a YNAB Personal Access Token by following [these
+   instructions](https://api.youneedabudget.com/#personal-access-tokens).  Make
+   note of the token value for later.
+
+6. Get a free Currency Converter API token by clicking the **Get Your Free API
+   Key** button [on this page](https://free.currencyconverterapi.com/).  Make
+   note of the token value for later.
+
+### Run the tool
 
 Run the following command, with the values in angle brackets (such as
-`<YOUR-BUDGET-ID>`) substituted:
+`<YOUR-BUDGET-ID>`) substituted using the token and ID values you noted above:
 
 ```
 fca4ynab \
@@ -254,8 +257,8 @@ prior to the date you first ran the tool.  If you prefer a different start
 date, use the `--start-date=<YYYY-MM-DD>` argument to override it.  Note that
 you can only set this the first time you run the tool for a given budget.
 
-If you are happy with the plan, re-run it with the `--yes` argument to actually
-create the difference and adjustment transactions.
+When you are happy with the plan, re-run it with an additional `--yes` argument
+to actually create the difference and adjustment transactions.
 
 Note that it may take a few minutes for the new transactions to show up in the
 YNAB app.  If you're impatient to see them, reload the app and they should be
@@ -497,8 +500,8 @@ when you registered your app.
 
 ## Development
 
-### Build from source
+### Build from source code
 
 1. Install the Rust toolchain by following [the Rust installation instructions](https://www.rust-lang.org/en-US/install.html).
-2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab/tree/release/0.1.10).
-3. In the root of the source tree, run `cargo install --path .`.
+2. Download the source code and unpack: [.zip](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.zip), [.tar.gz](https://github.com/borsboom/foreign-currency-accounts-for-ynab/archive/release/0.1.10.tar.gz), or clone the [Git repository](https://github.com/borsboom/foreign-currency-accounts-for-ynab.git).
+3. In the root of the source tree, run `cargo install --path .`
