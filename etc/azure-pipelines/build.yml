@@ -12,6 +12,19 @@ steps:
     and(succeeded(),
         eq(variables['Agent.OS'], 'Linux'))
   displayName: Install Ubuntu packages (Linux)
+- bash: |
+    set -xeu -o pipefail
+    vcpkg install openssl:x64-windows
+    set +x
+    echo "##vso[task.setvariable variable=VCPKG_ROOT]C:\\vcpkg"
+    echo "##vso[task.setvariable variable=VCPKGRS_DYNAMIC]1"
+    echo "##vso[task.setvariable variable=OPENSSL_DIR]C:\\vcpkg\\installed\\x64-windows"
+    echo "##vso[task.setvariable variable=OPENSSL_LIB_DIR]C:\\vcpkg\\installed\\x64-windows\\lib"
+    echo "##vso[task.setvariable variable=OPENSSL_INCLUDE_DIR]C:\\vcpkg\\installed\\x64-windows\\include"
+  condition:
+    and(succeeded(),
+        eq(variables['Agent.OS'], 'Windows_NT'))
+  displayName: Install vcpkg dependencies (Windows)
 
 #
 # Build and run tests
@@ -40,19 +53,42 @@ steps:
   displayName: Set master build version variable
 - bash: |
     echo "##vso[task.setvariable variable=PLATFORM_SUFFIX]$(uname -m)-$(uname -s|tr A-Z a-z|sed 's/_.*$//')"
-  condition: succeeded()
-  displayName: Set platform suffix variable
+  condition:
+    and(succeeded(),
+        ne(variables['Agent.OS'], 'Windows_NT'))
+  displayName: Set platform suffix variable (macOS/Linux)
+- bash: |
+    echo "##vso[task.setvariable variable=PLATFORM_SUFFIX]$(uname -m)-windows"
+  condition:
+    and(succeeded(),
+        eq(variables['Agent.OS'], 'Windows_NT'))
+  displayName: Set platform suffix variable (Windows)
+
+#
+# Install release dependencies
+#
+- bash: |
+    set -xeu -o pipefail
+    sudo apt-get install -y gcc-arm-linux-gnueabihf
+    rustup target add armv7-unknown-linux-gnueabihf
+  condition: |
+    and(succeeded(),
+        or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
+           startswith(variables['Build.SourceBranch'], 'refs/tags/release/')),
+        eq(variables['Agent.OS'], 'Linux'))
+  displayName: Install release dependencies (Linux)
 
 #
 # Build release
 #
 - bash: |
     set -xeu -o pipefail
-    for x in target/release target/x86_64-unknown-linux-musl/release; do
-      mkdir -p $x
-      chmod a+rwx $x
-    done
+    mkdir -p target
+    # ekidd/rust-musl-builder requires directory to be writable by UID 1000
+    find . -print0 |xargs -0 -n 100 sudo chown 1000
     docker run --rm -v "$PWD:/home/rust/src" ekidd/rust-musl-builder:$(cat rust-toolchain) cargo build --release
+    find . -print0 |xargs -0 -n 100 sudo chown $UID
     cp target/x86_64-unknown-linux-musl/release/fca4ynab "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"
     strip "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-$PLATFORM_SUFFIX"
   condition: |
@@ -61,7 +97,19 @@ steps:
            startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
            startswith(variables['Build.SourceBranch'], 'refs/tags/release/')),
         eq(variables['Agent.OS'], 'Linux'))
-  displayName: Build release (Linux)
+  displayName: Build release (Linux x86_64)
+- bash: |
+    set -xeu -o pipefail
+    cargo build --release --target=armv7-unknown-linux-gnueabihf --features=openssl/vendored
+    cp target/armv7-unknown-linux-gnueabihf/release/fca4ynab "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-armv7-linux"
+    arm-linux-gnueabihf-strip "$BUILD_ARTIFACTSTAGINGDIRECTORY/fca4ynab-$CI_BUILD_VERSION-armv7-linux"
+  condition: |
+    and(succeeded(),
+        or(eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+           startswith(variables['Build.SourceBranch'], 'refs/heads/binaries/'),
+           startswith(variables['Build.SourceBranch'], 'refs/tags/release/')),
+        eq(variables['Agent.OS'], 'Linux'))
+  displayName: Build release (Linux ARMv7)
 - bash: |
     set -xeu -o pipefail
     cargo build --release
