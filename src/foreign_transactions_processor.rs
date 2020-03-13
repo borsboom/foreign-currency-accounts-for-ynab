@@ -503,9 +503,19 @@ impl<'a> ForeignTransactionsProcessor<'a> {
                         .convert_currency(exchange_rate)
                         - foreign_total_and_difference_balance.foreign_accounts_total,
                 );
-                let difference_adjustment_amount = expected_difference_account_balance
-                    - foreign_total_and_difference_balance.difference_account_balance;
-                if difference_adjustment_amount != Milliunits::zero() {
+                let difference_adjustment_amount = self.round_to_budget_decimal_digits(
+                    expected_difference_account_balance
+                        - foreign_total_and_difference_balance.difference_account_balance,
+                );
+                // We don't create adjustments for less than two of the
+                // smallest currency unit (e.g. two cents), to avoid risk of
+                // "cycles" when YNAB API rounds sub-currency-unit (e.g.
+                // sub-cent) account balances in unpredictable ways.
+                if difference_adjustment_amount.abs()
+                    > Milliunits::smallest_unit(
+                        self.budget_settings.currency_format.decimal_digits as u32,
+                    )
+                {
                     let adjustment_payee_name = format_adjustment_payee_name(difference_key);
                     let adjustment_memo = format!(
                         "{}{}",
