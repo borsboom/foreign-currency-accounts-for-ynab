@@ -201,8 +201,9 @@ for different currencies if you wish.
    | Platform           | Download link |
    |--------------------|---------------|
    | Linux (x86 64-bit) | [fca4ynab-0.1.10-x86_64-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-linux) |
+   | Linux (ARMv7) | [fca4ynab-0.1.10-armv7-linux](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-armv6-linux) |
    | macOS              | [fca4ynab-0.1.10-x86_64-darwin](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-darwin) |
-   | Windows (64-bit)   | [fca4ynab-0.1.10-x86_64-mingw64.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-mingw64.exe) |
+   | Windows (64-bit)   | [fca4ynab-0.1.10-x86_64-windows.exe](https://github.com/borsboom/foreign-currency-accounts-for-ynab/releases/download/release%2F0.1.10/fca4ynab-0.1.10-x86_64-windows.exe) |
 
    If your platform isn't listed, you can [build from
    source](#build-from-source).  You can see changes and download previous

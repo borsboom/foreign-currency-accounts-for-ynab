@@ -21,7 +21,7 @@ steps:
 - bash: |
     set -xeu -o pipefail
     curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain none -y
-    rustup set default-host x86_64-pc-windows-gnu
+    rustup set default-host x86_64-pc-windows-msvc
   condition:
     and(succeeded(),
         eq(variables['Agent.OS'], 'Windows_NT'))
