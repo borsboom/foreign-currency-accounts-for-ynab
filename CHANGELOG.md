@@ -1,6 +1,15 @@
 # Change log
 
 
+## 0.1.11
+
+Changes since 0.1.10:
+- Round adjustment transactions to currency format's decimal digits, to avoid
+  risk of "cycles" when there are sub-cent account balances present (fixes
+  [#23](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/23)).
+- Build ARMv7 Linux binaries, for Raspberry Pi and similar (fixes
+  [#24](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/24)).
+
 ## 0.1.10
 
 **BREAKING CHANGE:** If you have foreign currency **credit** accounts, you must
@@ -14,7 +23,7 @@ DIFFERENCE>`).
 
 Changes since 0.1.9:
 - Use separate difference accounts for credit accounts (fixes
-  [#13](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/13))
+  [#13](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/13)).
 - Set more consistent difference transaction memo prefixes.  Now they all start
   with `<CONVERT: …>`.
 
