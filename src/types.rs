@@ -135,7 +135,6 @@ impl Milliunits {
         )
     }
 
-    /* UNUSED FUNCTIONS
     pub fn abs(&self) -> Milliunits {
         let result = Milliunits(self.0.abs());
         assert_eq!(result.0.scale(), Self::SCALE);
@@ -153,6 +152,7 @@ impl Milliunits {
         )
     }
 
+    /* UNUSED FUNCTIONS
     pub fn round_half_up(self, currency_decimal_digits: u32) -> Milliunits {
         self.round_dp_with_strategy(currency_decimal_digits, RoundingStrategy::RoundHalfUp)
     }
@@ -348,7 +348,6 @@ mod tests {
         );
     }
 
-    /* UNUSED FUNCTIONS
     #[test]
     fn test_milliunits_smallest_unit() {
         assert_eq!(
@@ -365,5 +364,4 @@ mod tests {
         );
         assert_eq!(Milliunits::smallest_unit(3), Milliunits::from_scaled_i64(1));
     }
-    */
 }
