@@ -1,6 +1,14 @@
 # Change log
 
 
+## 0.1.12
+
+Changes since 0.1.11:
+- Change default maximum currency pairs per currency converter API request to
+  two (fixes
+  [#27](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/27)).
+
+
 ## 0.1.11
 
 Changes since 0.1.10:
