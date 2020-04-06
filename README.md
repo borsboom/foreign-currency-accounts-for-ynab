@@ -2,6 +2,8 @@
 
 <img src="https://api.youneedabudget.com/papi/works_with_ynab.svg" alt="" align="right">
 
+**IMPORTANT NOTE: This is the older command-line interface version of this tool which you must run on your own workstation.  For the new easier-to-use web based version, please visit [fca4ynab.borsboom.io](https://fca4ynab.borsboom.io/).**
+
 Manage multiple currency accounts in a single budget in [You Need A
 Budget.](https://www.youneedabudget.com/)
 
@@ -125,9 +127,7 @@ the Euro difference account would hold $10.00, since
 
 ## How to use
 
-**Important note: currently this preview is just a command-line tool with basic
-features that you can run manually.** However, I intend to flesh this out into
-a web application, if folks seem interested.
+**IMPORTANT NOTE: This is the older command-line interface version of this tool which you must run on your own workstation.  For the new easier-to-use web based version, please visit [fca4ynab.borsboom.io](https://fca4ynab.borsboom.io/).**
 
 These instructions assume that you are familiar with using your operating
 system's command-line terminal.
@@ -195,6 +195,8 @@ your foreign currency holdings.  You can also create separate budget categories
 for different currencies if you wish.
 
 ### Tool setup
+
+**IMPORTANT NOTE: This is the older command-line interface version of this tool which you must run on your own workstation.  For the new easier-to-use web based version, please visit [fca4ynab.borsboom.io](https://fca4ynab.borsboom.io/).**
 
 1. Download the appropriate binary executable for your platform:
 
