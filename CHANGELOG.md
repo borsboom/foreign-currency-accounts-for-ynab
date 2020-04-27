@@ -1,6 +1,13 @@
 # Change log
 
 
+## 0.1.13
+
+Changes since 0.1.12:
+- Split save transactions into batches (fixes
+  [#29](https://github.com/borsboom/foreign-currency-accounts-for-ynab/issues/29))
+
+
 ## 0.1.12
 
 Changes since 0.1.11:

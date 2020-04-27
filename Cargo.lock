@@ -409,7 +409,7 @@ dependencies = [
 
 [[package]]
 name = "fca4ynab"
-version = "0.1.12"
+version = "0.1.13"
 dependencies = [
  "chrono",
  "clap",
