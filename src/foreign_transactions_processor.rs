@@ -572,25 +572,30 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             );
             if !transactions_modifications.update_transactions.is_empty() && !self.dry_run {
                 println!("Saving changed transactions to YNAB...");
-                let updated_transactions = self
-                    .ynab_client
-                    .update_transactions(transactions_modifications.update_transactions)?;
-                debug!(
-                    "Response from YNAB after saving changed transactions: {:#?}",
-                    updated_transactions
-                );
-                for updated_transaction in updated_transactions {
-                    let updated_transaction_id = YnabTransactionId::new(updated_transaction.id);
-                    database_update_difference_transactions.push(DifferenceTransaction {
-                        difference_transaction_id: updated_transaction_id,
-                        amount: Milliunits::from_scaled_i64(updated_transaction.amount),
-                        difference_key: self.difference_account_key_for_save(&YnabAccountId::new(
-                            updated_transaction.account_id,
-                        )),
-                        transfer_key: updated_transaction.transfer_account_id.and_then(|a| {
-                            self.transfer_account_key_for_save(&YnabAccountId::new(a))
-                        }),
-                    });
+                for update_transactions_chunk in transactions_modifications
+                    .update_transactions
+                    .chunks(SAVE_TRANSACTIONS_CHUNK_SIZE)
+                {
+                    let updated_transactions = self
+                        .ynab_client
+                        .update_transactions(update_transactions_chunk.to_vec())?;
+                    debug!(
+                        "Response from YNAB after saving changed transactions: {:#?}",
+                        updated_transactions
+                    );
+                    for updated_transaction in updated_transactions {
+                        let updated_transaction_id = YnabTransactionId::new(updated_transaction.id);
+                        database_update_difference_transactions.push(DifferenceTransaction {
+                            difference_transaction_id: updated_transaction_id,
+                            amount: Milliunits::from_scaled_i64(updated_transaction.amount),
+                            difference_key: self.difference_account_key_for_save(
+                                &YnabAccountId::new(updated_transaction.account_id),
+                            ),
+                            transfer_key: updated_transaction.transfer_account_id.and_then(|a| {
+                                self.transfer_account_key_for_save(&YnabAccountId::new(a))
+                            }),
+                        });
+                    }
                 }
             }
             debug!(
@@ -599,42 +604,47 @@ impl<'a> ForeignTransactionsProcessor<'a> {
             );
             if !transactions_modifications.create_transactions.is_empty() && !self.dry_run {
                 println!("Saving new transactions to YNAB...");
-                let created_transactions = self
-                    .ynab_client
-                    .create_transactions(transactions_modifications.create_transactions)?;
-                debug!(
-                    "Response from YNAB after saving new transactions: {:#?}",
-                    created_transactions
-                );
-                for created_transaction in created_transactions {
-                    if let Some(import_id) = created_transaction.import_id {
-                        if let Some(foreign_ynab_transaction_id) = transactions_modifications
-                            .create_import_ids_foreign_ynab_transaction_ids
-                            .get(&YnabImportId::new(import_id))
-                        {
-                            database_create_difference_transactions.push(
-                                CreateDifferenceTransaction {
-                                    foreign_transaction_id: foreign_ynab_transaction_id.clone(),
-                                    inner: DifferenceTransaction {
-                                        difference_transaction_id: YnabTransactionId::new(
-                                            created_transaction.id,
-                                        ),
-                                        amount: Milliunits::from_scaled_i64(
-                                            created_transaction.amount,
-                                        ),
-                                        difference_key: self.difference_account_key_for_save(
-                                            &YnabAccountId::new(created_transaction.account_id),
-                                        ),
-                                        transfer_key: created_transaction
-                                            .transfer_account_id
-                                            .and_then(|a| {
-                                                self.transfer_account_key_for_save(
-                                                    &YnabAccountId::new(a),
-                                                )
-                                            }),
+                for create_transactions_chunk in transactions_modifications
+                    .create_transactions
+                    .chunks(SAVE_TRANSACTIONS_CHUNK_SIZE)
+                {
+                    let created_transactions = self
+                        .ynab_client
+                        .create_transactions(create_transactions_chunk.to_vec())?;
+                    debug!(
+                        "Response from YNAB after saving new transactions: {:#?}",
+                        created_transactions
+                    );
+                    for created_transaction in created_transactions {
+                        if let Some(import_id) = created_transaction.import_id {
+                            if let Some(foreign_ynab_transaction_id) = transactions_modifications
+                                .create_import_ids_foreign_ynab_transaction_ids
+                                .get(&YnabImportId::new(import_id))
+                            {
+                                database_create_difference_transactions.push(
+                                    CreateDifferenceTransaction {
+                                        foreign_transaction_id: foreign_ynab_transaction_id.clone(),
+                                        inner: DifferenceTransaction {
+                                            difference_transaction_id: YnabTransactionId::new(
+                                                created_transaction.id,
+                                            ),
+                                            amount: Milliunits::from_scaled_i64(
+                                                created_transaction.amount,
+                                            ),
+                                            difference_key: self.difference_account_key_for_save(
+                                                &YnabAccountId::new(created_transaction.account_id),
+                                            ),
+                                            transfer_key: created_transaction
+                                                .transfer_account_id
+                                                .and_then(|a| {
+                                                    self.transfer_account_key_for_save(
+                                                        &YnabAccountId::new(a),
+                                                    )
+                                                }),
+                                        },
                                     },
-                                },
-                            );
+                                );
+                            }
                         }
                     }
                 }

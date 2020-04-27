@@ -9,6 +9,7 @@ pub const DIFFERENCE_MEMO_TAG_PREFIX: &str = "CONVERT: ";
 pub const DEFAULT_DATABASE_FILENAME: &str = "data.sqlite3";
 pub const DEFAULT_CURRENCY_CONVERTER_API_BASE_URL: &str = "https://free.currconv.com";
 pub const DEFAULT_CURRENCY_CONVERTER_API_MAX_CURRENCY_PAIRS_PER_REQUEST: usize = 2;
+pub const SAVE_TRANSACTIONS_CHUNK_SIZE: usize = 50;
 
 pub const YES_ARG: &str = "yes";
 pub const AUTO_APPROVE_TRANSACTIONS_ARG: &str = "auto-approve-transactions";
