@@ -1,8 +1,10 @@
+<div style="border: 1px solid #ffe69c; padding: 1ex; margin-bottom: 3ex; background-color: #fff3cd; color: #664d03; width: 100%">
+  <b>The web-based version of this tool has been shut down</b> due to YNAB not updating their API to support newer YNAB features or fix bugs.  This is the older command-line interface version, but it is no longer being updated or maintained for the same reasons, and does not work with the current YNAB API.
+</div>
+
 # Foreign currency accounts for YNAB.
 
 <img src="https://api.youneedabudget.com/papi/works_with_ynab.svg" alt="" align="right">
-
-**IMPORTANT NOTE: This is the older command-line interface version of this tool which you must run on your own workstation.  For the new easier-to-use web based version, please visit [fca4ynab.borsboom.io](https://fca4ynab.borsboom.io/).**
 
 Manage multiple currency accounts in a single budget in [You Need A
 Budget.](https://www.youneedabudget.com/)
@@ -11,8 +13,6 @@ This is based on an approach that I've been using manually for several years
 and found to work very well for our family budget which crosses three different
 currencies and involves a lot of foreign transactions and transfers (after
 trying a few other ways first).
-
-**Preview version!**
 
 ### Table of contents
 
